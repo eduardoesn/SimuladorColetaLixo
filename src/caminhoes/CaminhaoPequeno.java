@@ -12,7 +12,7 @@ import zonas.Zonas;
 public class CaminhaoPequeno {
 
     /**
-     * Identificador do caminhão.
+     * Identificador único do caminhão.
      */
     private String id;
 
@@ -23,38 +23,44 @@ public class CaminhaoPequeno {
 
     /**
      * Quantidade atual de carga no caminhão, em toneladas.
+     * Inicialmente zero.
      */
     private int cargaAtual;
 
     /**
      * Número de viagens restantes que o caminhão pode realizar no dia.
+     * Este contador é decrementado a cada viagem.
      */
     private int viagensRestantes;
 
     /**
-     * Zona de destino atual do caminhão.
+     * Zona de destino atual do caminhão para coleta de lixo.
      */
     private Zonas destinoZona;
 
     /**
-     * Evento de geração de caminhão grande associado, caso este caminhão precise descarregar.
+     * Evento de geração de caminhão grande associado a este caminhão,
+     * caso ele precise descarregar e a estação necessite de um caminhão grande.
+     * Permite cancelar o evento se o caminhão grande se tornar disponível antes.
      */
     private GeracaoCaminhaoGrande eventoAgendado;
 
     /**
      * Construtor da classe CaminhaoPequeno.
+     * Inicializa um novo caminhão com suas propriedades básicas.
      *
-     * @param id               Identificador do caminhão.
-     * @param capacidadeMaxima Capacidade máxima de carga do caminhão (em toneladas).
-     * @param viagensRestantes Número de viagens que o caminhão pode realizar por dia.
-     * @param destinoZona      Zona de destino inicial para a coleta.
+     * @param id               Identificador do caminhão (ex: "C1", "C2").
+     * @param capacidadeMaxima Capacidade máxima de carga do caminhão em toneladas.
+     * @param viagensRestantes Número inicial de viagens que o caminhão pode realizar por dia.
+     * @param destinoZona      A zona inicial para a qual o caminhão está designado para coleta.
      */
     public CaminhaoPequeno(String id, int capacidadeMaxima, int viagensRestantes, Zonas destinoZona) {
         this.id = id;
         this.capacidadeMaxima = capacidadeMaxima;
-        this.cargaAtual = 0;
+        this.cargaAtual = 0; // Caminhão começa vazio
         this.viagensRestantes = viagensRestantes;
         this.destinoZona = destinoZona;
+        this.eventoAgendado = null; // Nenhum evento de geração de caminhão grande agendado inicialmente
     }
 
     /**
@@ -67,7 +73,7 @@ public class CaminhaoPequeno {
     }
 
     /**
-     * Retorna o número de viagens restantes disponíveis no dia.
+     * Retorna o número de viagens restantes disponíveis para o caminhão no dia.
      *
      * @return Número de viagens restantes.
      */
@@ -76,9 +82,9 @@ public class CaminhaoPequeno {
     }
 
     /**
-     * Retorna o identificador do caminhão.
+     * Retorna o identificador único do caminhão.
      *
-     * @return ID do caminhão.
+     * @return O ID do caminhão.
      */
     public String getId() {
         return id;
@@ -94,18 +100,19 @@ public class CaminhaoPequeno {
     }
 
     /**
-     * Retorna a zona de destino atual do caminhão.
+     * Retorna a zona de destino atual para a coleta de lixo.
      *
-     * @return Zona de destino.
+     * @return A zona de destino.
      */
     public Zonas getDestinoZona() {
         return destinoZona;
     }
 
     /**
-     * Retorna o evento de geração de caminhão grande associado.
+     * Retorna o evento de geração de caminhão grande que foi agendado para este caminhão pequeno,
+     * caso ele esteja aguardando descarregamento em uma estação sem caminhão grande disponível.
      *
-     * @return Evento agendado de transferência para caminhão grande.
+     * @return O evento agendado de transferência para caminhão grande, ou {@code null} se não houver.
      */
     public GeracaoCaminhaoGrande getEventoAgendado() {
         return eventoAgendado;
@@ -113,8 +120,9 @@ public class CaminhaoPequeno {
 
     /**
      * Define o evento de geração de caminhão grande que será associado a este caminhão pequeno.
+     * Isso é usado para permitir o cancelamento do evento se a situação mudar.
      *
-     * @param eventoAgendado Evento a ser associado.
+     * @param eventoAgendado O evento a ser associado. Pode ser {@code null} para remover a associação.
      */
     public void setEventoAgendado(GeracaoCaminhaoGrande eventoAgendado) {
         this.eventoAgendado = eventoAgendado;
@@ -122,32 +130,34 @@ public class CaminhaoPequeno {
 
     /**
      * Tenta adicionar uma quantidade de carga ao caminhão.
-     * Caso ultrapasse a capacidade máxima, a carga não será adicionada.
+     * A carga só será adicionada se a quantidade total não exceder a capacidade máxima do caminhão.
      *
-     * @param quantidade Quantidade a ser coletada (em toneladas).
-     * @return true se a carga foi adicionada com sucesso, false caso exceda a capacidade.
+     * @param quantidade Quantidade de lixo a ser coletada (em toneladas).
+     * @return {@code true} se a carga foi adicionada com sucesso, {@code false} caso a capacidade máxima seja excedida.
      */
     public boolean coletarCarga(int quantidade) {
         if (cargaAtual + quantidade <= capacidadeMaxima) {
             cargaAtual += quantidade;
-            System.out.println("[CAMINHÃO " + id + "] Coletou " + quantidade + " toneladas");
+            System.out.println("[CAMINHÃO " + id + "] Coletou " + quantidade + " toneladas.");
             return true;
         }
-        System.out.println("[CAMINHÃO " + id + "] Carga máxima atingida.");
+        System.out.println("[CAMINHÃO " + id + "] Carga máxima atingida. Não é possível coletar mais.");
         return false;
     }
 
     /**
-     * Descarrega toda a carga do caminhão, resetando para zero.
+     * Descarrega toda a carga do caminhão, resetando a {@code cargaAtual} para zero.
+     * Simula o esvaziamento do caminhão em uma estação de transferência ou aterro.
      */
     public void descarregarCarga() {
         cargaAtual = 0;
+        System.out.println("[CAMINHÃO " + id + "] Carga descarregada. Caminhão vazio.");
     }
 
     /**
-     * Verifica se o caminhão ainda pode realizar mais viagens no dia.
+     * Verifica se o caminhão ainda pode realizar mais viagens de coleta no dia.
      *
-     * @return true se houver viagens restantes, false caso contrário.
+     * @return {@code true} se houver viagens restantes ({@code viagensRestantes > 0}), {@code false} caso contrário.
      */
     public boolean podeViajarNovamente() {
         return viagensRestantes > 0;
@@ -155,11 +165,14 @@ public class CaminhaoPequeno {
 
     /**
      * Registra que uma viagem foi realizada, decrementando o contador de viagens restantes.
+     * Se o número de viagens restantes for zero, o caminhão não poderá mais viajar para coleta.
      */
     public void registrarViagem() {
         if (viagensRestantes > 0) {
             viagensRestantes--;
-            System.out.println("[CAMINHÃO " + id + "] " + viagensRestantes + " viagens restantes.");
+            System.out.println("[CAMINHÃO " + id + "] Viagem registrada. " + viagensRestantes + " viagens restantes.");
+        } else {
+            System.out.println("[CAMINHÃO " + id + "] Limite de viagens diárias atingido.");
         }
     }
 }

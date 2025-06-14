@@ -26,95 +26,72 @@ public class Fila<T> {
     }
 
     /**
-     * Adiciona um novo elemento ao início da fila.
-     * Este método não preserva a ordem FIFO no momento da inserção.
+     * Adiciona um novo elemento ao final da fila (FIFO).
      *
      * @param valor O valor a ser inserido na fila.
-     * @return Retorna {@code true} se o elemento foi inserido com sucesso.
      */
-    public boolean enqueue(T valor) {
-        NoFila<T> novo = new NoFila<>(valor);
-        if (tamanho == 0) {
-            this.head = novo;
-            this.tail = novo;
+    public void enqueue(T valor) {
+        NoFila<T> novoNo = new NoFila<>(valor);
+        if (estaVazia()) {
+            this.head = novoNo;
         } else {
-            novo.setProx(this.head);
-            this.head = novo;
+            this.tail.setProx(novoNo);
+            novoNo.setAnt(this.tail); // Ajusta a referência 'ant' para o novo nó
         }
+        this.tail = novoNo; // O novo nó sempre será o novo tail
         tamanho++;
-        return true;
-    }
-
-    /**
-     * Remove o último elemento da fila seguindo o modelo FIFO.
-     * <p>
-     * Caso seja removido, o elemento retirado é desconectado da estrutura.
-     *
-     * @return Retorna o nó removido ou {@code null} se a fila estiver vazia.
-     */
-    public NoFila<T> dequeue() {
-        if (tamanho == 0) {
-            System.out.println("Não há elementos na fila");
-            return null;
-        }
-
-        NoFila<T> elemento;
-
-        if (this.head == this.tail) { // Caso exista um único elemento na fila
-            elemento = this.head;
-            this.head = null;
-            this.tail = null;
-        } else { // Caso existam múltiplos elementos
-            NoFila<T> atual = this.head;
-            while (atual.getProx() != this.tail) {
-                atual = atual.getProx();
-            }
-
-            elemento = atual.getProx();
-            this.tail = atual;
-            atual.setProx(null);
-        }
-
-        tamanho--;
-        return elemento;
     }
 
     /**
      * Remove e retorna o primeiro elemento da fila seguindo o modelo FIFO.
-     * <p>
-     * Este método é mais rápido que {@link #dequeue()} porque mantém a ordem
-     * natural da fila e não percorre todos os elementos.
      *
      * @return O valor do elemento removido ou {@code null} se a fila estiver vazia.
      */
     public T poll() {
-        if (head == null) {
+        if (estaVazia()) {
             return null;
         }
-        T valor = head.valor;
-        head = head.prox;
-        if (head == null) { // Caso a fila fique totalmente vazia
+        T valor = head.getValor();
+        head = head.getProx();
+        if (head == null) { // Se a fila ficou vazia após a remoção
             tail = null;
+        } else {
+            head.setAnt(null); // Remove a referência para o nó anterior (o que foi removido)
         }
         tamanho--;
         return valor;
     }
 
     /**
+     * Retorna o primeiro elemento da fila sem removê-lo.
+     *
+     * @return O valor do primeiro elemento da fila ou {@code null} se a fila estiver vazia.
+     */
+    public T peek() {
+        if (estaVazia()) {
+            return null;
+        }
+        return head.getValor();
+    }
+
+    /**
      * Imprime os elementos da fila na ordem de inserção, do início ao fim.
      * <p>
      * A impressão segue o formato "element1 -> element2 -> ... -> elementN".
-     * Se a fila estiver vazia, não imprime nada.
+     * Se a fila estiver vazia, imprime "Fila vazia".
      */
     public void imprimir() {
+        if (estaVazia()) {
+            System.out.println("Fila vazia.");
+            return;
+        }
         NoFila<T> atual = this.head;
-        for (int i = this.tamanho; i > 0; i--) {
-            if (i == 1) {
-                System.out.print(atual.getValor());
-            } else {
-                System.out.print(atual.getValor() + " -> ");
-                atual = atual.getProx();
+        while (atual != null) {
+            System.out.print(atual.getValor());
+            if (atual.getProx() != null) {
+                System.out.print(" -> ");
             }
+            atual = atual.getProx();
         }
         System.out.println();
     }

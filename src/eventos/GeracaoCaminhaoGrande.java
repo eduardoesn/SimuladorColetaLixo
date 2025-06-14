@@ -1,18 +1,21 @@
 package eventos;
 
 import estacoes.EstacaoDeTransferencia;
+import timer.Timer;
 
 /**
- * Evento responsável por gerar um novo caminhão grande em uma estação de transferência,
- * caso o tempo máximo de espera tenha sido excedido e não haja caminhões grandes disponíveis.
+ * Evento responsável por gerar um novo caminhão grande em uma estação de transferência.
+ * Este evento é agendado quando um caminhão pequeno precisa descarregar na estação,
+ * mas não há um caminhão grande disponível ou o caminhão grande existente está cheio
+ * e o tempo máximo de espera foi excedido.
  * <p>
- * Esse evento garante que a operação da estação não seja interrompida por falta de capacidade
+ * Garante que a operação da estação não seja interrompida por falta de capacidade
  * para transportar o lixo ao aterro sanitário.
  */
 public class GeracaoCaminhaoGrande extends Evento {
 
     /**
-     * Estação de transferência onde será avaliada a necessidade de gerar um novo caminhão grande.
+     * A {@link EstacaoDeTransferencia} onde será avaliada a necessidade de gerar um novo caminhão grande.
      */
     private EstacaoDeTransferencia estacao;
 
@@ -20,24 +23,52 @@ public class GeracaoCaminhaoGrande extends Evento {
      * Construtor do evento de geração de caminhão grande.
      *
      * @param tempo    Tempo simulado (em minutos) em que o evento será executado.
-     * @param estacao  Estação de transferência onde o caminhão será gerado, se necessário.
+     * @param estacao  A {@link EstacaoDeTransferencia} onde o caminhão grande será gerado, se necessário.
+     * @throws IllegalArgumentException se o tempo for negativo ou a estação for nula.
      */
     public GeracaoCaminhaoGrande(int tempo, EstacaoDeTransferencia estacao) {
         super(tempo);
+        if (estacao == null) {
+            throw new IllegalArgumentException("A estação para geração de caminhão grande não pode ser nula.");
+        }
         this.estacao = estacao;
     }
 
     /**
-     * Executa o evento. Verifica se há caminhão grande disponível.
-     * Caso não haja, um novo caminhão é criado para atender a demanda da estação.
+     * Retorna uma representação textual do evento de geração de caminhão grande,
+     * incluindo o nome da estação e o horário simulado.
+     *
+     * @return Uma {@code String} formatada com os detalhes do evento.
+     */
+    @Override
+    public String toString() {
+        return String.format("EventoGeracaoCaminhaoGrande | Estação %s | Horário: %s",
+                estacao.getNomeEstacao(),
+                Timer.formatarHorarioSimulado(getTempo()));
+    }
+
+    /**
+     * Executa o evento de geração de caminhão grande.
+     * <p>
+     * Verifica se já existe um caminhão grande disponível na estação que ainda não está pronto para partida.
+     * Se não houver, um novo caminhão grande é criado e associado à estação, e a fila de espera de caminhões
+     * pequenos é tentada ser descarregada.
      */
     @Override
     public void executar() {
-        // Se já houver caminhão grande disponível, não há necessidade de gerar outro
-        if (estacao.getCaminhaoGrandeDisponivel()) return;
+        System.out.println("== GERAÇÃO DE CAMINHÃO GRANDE ==");
+        System.out.printf("[%s] [Estação %s]%n", Timer.formatarHorarioSimulado(getTempo()), estacao.getNomeEstacao());
 
-        // Caso contrário, cria um novo caminhão grande
-        System.out.println("[GERAÇÃO] Tempo máximo de espera atingido. Criando caminhão grande.");
-        estacao.gerarNovoCaminhaoGrande(tempo);
+        // Se já houver um caminhão grande disponível e ele não estiver pronto para partida (ou seja, ainda pode carregar),
+        // não há necessidade de gerar outro neste momento.
+        if (estacao.getCaminhaoGrandeDisponivel()) {
+            System.out.println("  • Caminhão grande já disponível na estação. Geração cancelada.");
+            return;
+        }
+
+        // Caso contrário, um novo caminhão grande é gerado para atender à demanda da estação.
+        System.out.println("  • Tempo máximo de espera atingido. Gerando novo caminhão grande para a estação.");
+        estacao.gerarNovoCaminhaoGrande(getTempo());
+        System.out.println(); // Linha em branco para melhor legibilidade
     }
 }

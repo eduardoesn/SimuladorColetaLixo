@@ -8,21 +8,27 @@ import timer.TimerDetalhado;
 
 /**
  * Representa um evento de coleta de lixo em uma zona específica da cidade.
- * Esse evento é executado por um caminhão pequeno que coleta lixo até atingir sua capacidade
- * ou até que não haja mais lixo disponível na zona.
+ * Este evento descreve a ação de um caminhão pequeno coletando lixo de uma zona
+ * até que o caminhão atinja sua capacidade máxima ou que a zona fique sem lixo.
  * <p>
- * Se o caminhão ainda puder realizar viagens após uma coleta, um novo evento de coleta é agendado.
- * Caso contrário, o próximo evento será a transferência do lixo para uma estação.
+ * A lógica de execução do evento determina a próxima ação:
+ * <ul>
+ * <li>Se a zona estiver limpa (ou ficar limpa), o caminhão registra uma viagem e
+ * pode tentar ir para a próxima zona em sua rota ou seguir para a estação de transferência.</li>
+ * <li>Se o caminhão atingir sua capacidade máxima, ele é agendado para ir para a estação de transferência.</li>
+ * <li>Caso contrário, o caminhão continua coletando na mesma zona ou, no futuro, poderia
+ * mudar para outra zona se sua rota envolver múltiplas coletas pequenas.</li>
+ * </ul>
  */
 public class ColetaLixo extends Evento {
 
     /**
-     * Caminhão pequeno responsável por realizar a coleta.
+     * O caminhão pequeno responsável por realizar a coleta neste evento.
      */
     private CaminhaoPequeno caminhao;
 
     /**
-     * Zona onde a coleta de lixo será realizada.
+     * A zona atual onde a coleta de lixo será realizada.
      */
     private Zonas zonaAtual;
 
@@ -30,19 +36,27 @@ public class ColetaLixo extends Evento {
      * Construtor do evento de coleta de lixo.
      *
      * @param tempo     Tempo simulado (em minutos) no qual o evento será executado.
-     * @param caminhao  Caminhão pequeno designado para a coleta.
-     * @param zonaAtual Zona onde ocorrerá a coleta de lixo.
+     * @param caminhao  O {@link CaminhaoPequeno} designado para realizar a coleta.
+     * @param zonaAtual A {@link Zonas} onde ocorrerá a coleta de lixo.
+     * @throws IllegalArgumentException se o tempo for negativo, o caminhão ou a zona forem nulos.
      */
     public ColetaLixo(int tempo, CaminhaoPequeno caminhao, Zonas zonaAtual) {
         super(tempo);
+        if (caminhao == null) {
+            throw new IllegalArgumentException("Caminhão não pode ser nulo para um evento de coleta.");
+        }
+        if (zonaAtual == null) {
+            throw new IllegalArgumentException("Zona não pode ser nula para um evento de coleta.");
+        }
         this.caminhao = caminhao;
         this.zonaAtual = zonaAtual;
     }
 
     /**
-     * Retorna uma descrição textual do evento, incluindo caminhão, zona e horário.
+     * Retorna uma descrição textual do evento de coleta, incluindo o ID do caminhão,
+     * o nome da zona e o horário simulado em que o evento ocorre.
      *
-     * @return Representação em string do evento.
+     * @return Uma representação em string do evento.
      */
     @Override
     public String toString() {
@@ -53,83 +67,109 @@ public class ColetaLixo extends Evento {
     }
 
     /**
-     * Executa o evento de coleta de lixo. O caminhão coleta lixo da zona até atingir
-     * sua capacidade ou até a zona não ter mais lixo.
-     * Dependendo da situação, agenda uma nova coleta ou a transferência para a estação.
+     * Executa a lógica do evento de coleta de lixo.
+     * O caminhão tenta coletar lixo da zona até que sua capacidade seja atingida
+     * ou não haja mais lixo na zona. Com base no resultado da coleta e na
+     * disponibilidade do caminhão, um novo evento é agendado (próxima coleta ou transferência).
      */
     @Override
     public void executar() {
-        // Verifica se ainda há lixo na zona
-        int qtdZona = zonaAtual.getLixoAcumulado();
-        if (qtdZona == 0) {
+        System.out.println("== C O L E T A ==");
+        String horarioAtual = Timer.formatarHorarioSimulado(getTempo());
+        System.out.printf("[%s] %n", horarioAtual);
+        System.out.printf("[COLETA] Caminhão %s → Zona %s | Viagens restantes: %d%n",
+                caminhao.getId(), zonaAtual.getNome(), caminhao.getViagensRestantes());
+
+        // Verifica se a zona tem lixo disponível para coleta
+        if (zonaAtual.getLixoAcumulado() == 0) {
             System.out.println("  • Zona está limpa. Nenhuma coleta realizada.");
+            caminhao.registrarViagem(); // Mesmo que não tenha coletado, a visita conta como viagem.
 
-            caminhao.registrarViagem();
-
+            // Se o caminhão ainda pode fazer mais viagens, ele tenta ir para a próxima zona
             if (caminhao.podeViajarNovamente()) {
-                // Agenda nova tentativa após tempo de espera
-                int tempoDeEspera = 30;
-                GerenciadorAgenda.adicionarEvento(new ColetaLixo(tempo + tempoDeEspera, caminhao, caminhao.getDestinoZona()));
+                // Assume um tempo de espera ou deslocamento mínimo para a próxima tentativa
+                // ou deslocamento para a próxima zona na rota.
+                int tempoDeEsperaOuDeslocamento = ConfiguracoesDoSimulador.VIAGEM_MIN_FORA_PICO; // Exemplo
+                System.out.printf("  • Caminhão %s procurando próxima zona ou aguardando. Tempo de espera: %s%n",
+                        caminhao.getId(), Timer.formatarDuracao(tempoDeEsperaOuDeslocamento));
+                GerenciadorAgenda.adicionarEvento(
+                        new ColetaLixo(getTempo() + tempoDeEsperaOuDeslocamento, caminhao, caminhao.getDestinoZona()));
             } else {
-                // Vai direto para estação de transferência
-                GerenciadorAgenda.adicionarEvento(new TransferenciaParaEstacao(tempo, caminhao, caminhao.getDestinoZona()));
+                // Se não pode mais viajar para coleta, o caminhão vai para a estação de transferência
+                System.out.printf("  • Caminhão %s não pode mais coletar. Indo para estação de transferência.%n", caminhao.getId());
+                GerenciadorAgenda.adicionarEvento(
+                        new TransferenciaParaEstacao(getTempo(), caminhao, zonaAtual));
             }
-            return;
+            return; // Encerra a execução deste evento de coleta
         }
 
-        boolean coletou = false;
-        int totalColetado = 0;
+        boolean coletouNestaIteracao = false;
+        int totalColetadoNestaOperacao = 0; // Total coletado antes de decidir a próxima ação
 
-        // Loop de coleta enquanto houver capacidade e lixo na zona
-        while (caminhao.podeViajarNovamente() &&
-                caminhao.getCargaAtual() < caminhao.getCapacidadeMaxima() &&
+        // Loop para coletar lixo até a capacidade do caminhão ou o esgotamento da zona
+        while (caminhao.getCargaAtual() < caminhao.getCapacidadeMaxima() &&
                 zonaAtual.getLixoAcumulado() > 0) {
 
             int qtdDisponivelZona = zonaAtual.getLixoAcumulado();
-            int espacoRestante = caminhao.getCapacidadeMaxima() - caminhao.getCargaAtual();
-            int qtdReal = Math.min(qtdDisponivelZona, espacoRestante);
+            int espacoRestanteCaminhao = caminhao.getCapacidadeMaxima() - caminhao.getCargaAtual();
+            // A quantidade real a ser coletada é o mínimo entre o disponível e o espaço restante
+            int qtdParaColetar = Math.min(qtdDisponivelZona, espacoRestanteCaminhao);
 
-            // Exibe informações da coleta
-            String horarioAtual = Timer.formatarHorarioSimulado(tempo);
-            System.out.println("== C O L E T A ==");
-            System.out.printf("[%s] \n", horarioAtual);
-            System.out.printf("[COLETA] Caminhão %s → Zona %s | %s Viagens %n", caminhao.getId(), zonaAtual.getNome(), caminhao.getViagensRestantes());
+            // Tenta coletar a carga
+            boolean sucessoColeta = caminhao.coletarCarga(qtdParaColetar);
 
-            coletou = caminhao.coletarCarga(qtdReal);
-            if (coletou) {
-                zonaAtual.coletarLixo(qtdReal);
-                totalColetado += qtdReal;
-                System.out.printf("  • Coletou: %dt    Carga: %d/%d%n",
-                        qtdReal, caminhao.getCargaAtual(), caminhao.getCapacidadeMaxima());
+            if (sucessoColeta) {
+                zonaAtual.coletarLixo(qtdParaColetar); // Remove o lixo da zona
+                totalColetadoNestaOperacao += qtdParaColetar;
+                coletouNestaIteracao = true;
+                System.out.printf("  • Coletou: %dt    Carga atual: %d/%d t%n",
+                        qtdParaColetar, caminhao.getCargaAtual(), caminhao.getCapacidadeMaxima());
             } else {
-                System.out.println("  • Carga máxima atingida.");
+                // Se a coleta falhou (ex: capacidade máxima atingida), sai do loop de coleta
+                System.out.println("  • Caminhão " + caminhao.getId() + " atingiu sua carga máxima.");
                 break;
             }
         }
 
-        // Define o que acontece após a coleta
-        if (caminhao.podeViajarNovamente() && coletou) {
-            int tempoAtual = tempo;
+        // Determina a próxima ação após a tentativa de coleta
+        if (coletouNestaIteracao) { // Se algo foi coletado nesta operação
+            // Calcula os tempos detalhados para o movimento do caminhão
+            TimerDetalhado tempoDetalhado = Timer.calcularTimerDetalhado(getTempo(), totalColetadoNestaOperacao, false); // 'false' pois está em coleta
 
-            // Calcula o tempo detalhado com base na quantidade coletada
-            TimerDetalhado tempoDetalhado = Timer.calcularTimerDetalhado(tempoAtual, totalColetado, false);
-
-            System.out.printf("  • Tempo de coleta: %s%n", Timer.formatarDuracao(tempoDetalhado.tempoColeta));
-            System.out.printf("  • Tempo de trajeto: %s%n", Timer.formatarDuracao(tempoDetalhado.tempoDeslocamento));
-            if (tempoDetalhado.tempoExtraCarregado > 0)
-                System.out.printf("  • Carga cheia: +%s%n", Timer.formatarDuracao(tempoDetalhado.tempoExtraCarregado));
-
-            System.out.printf("  • Horário: %s    Tempo total: %s%n",
-                    Timer.formatarHorarioSimulado(tempoAtual + tempoDetalhado.tempoTotal),
-                    Timer.formatarDuracao(tempoDetalhado.tempoTotal)
-            );
+            System.out.printf("  • Tempo gasto na coleta: %s%n", Timer.formatarDuracao(tempoDetalhado.tempoColeta));
+            System.out.printf("  • Tempo de trajeto para coleta: %s%n", Timer.formatarDuracao(tempoDetalhado.tempoDeslocamento));
+            if (tempoDetalhado.tempoExtraCarregado > 0) {
+                System.out.printf("  • Tempo extra por carga cheia (se aplicável): +%s%n", Timer.formatarDuracao(tempoDetalhado.tempoExtraCarregado));
+            }
+            System.out.printf("  • Próximo Horário de Ação: %s    Tempo total da operação: %s%n",
+                    Timer.formatarHorarioSimulado(getTempo() + tempoDetalhado.tempoTotal),
+                    Timer.formatarDuracao(tempoDetalhado.tempoTotal));
             System.out.println();
 
-            // Agenda próxima coleta
-            GerenciadorAgenda.adicionarEvento(new ColetaLixo(tempoAtual + tempoDetalhado.tempoTotal, caminhao, zonaAtual));
+            // Se o caminhão ainda pode viajar e não está cheio ou a zona ainda tem lixo, agenda próxima coleta.
+            // Esta lógica pode precisar de refinamento se o caminhão muda de zona.
+            if (caminhao.podeViajarNovamente() && !zonaAtual.estaLimpa() && caminhao.getCargaAtual() < caminhao.getCapacidadeMaxima()) {
+                // Continua coletando na mesma zona ou vai para a próxima da rota
+                GerenciadorAgenda.adicionarEvento(
+                        new ColetaLixo(getTempo() + tempoDetalhado.tempoTotal, caminhao, zonaAtual)); // Mantém na mesma zona por enquanto
+            } else {
+                // Caso contrário (caminhão cheio, zona limpa, ou limite de viagens), vai para a estação.
+                System.out.printf("  • Caminhão %s completou a coleta ou está cheio. Enviando para estação de transferência.%n", caminhao.getId());
+                GerenciadorAgenda.adicionarEvento(
+                        new TransferenciaParaEstacao(getTempo() + tempoDetalhado.tempoTotal, caminhao, zonaAtual));
+            }
         } else {
-            // Finaliza as coletas e envia caminhão para a estação
-            GerenciadorAgenda.adicionarEvento(new TransferenciaParaEstacao(tempo, caminhao, zonaAtual));
+            // Se nenhuma carga foi coletada e a zona estava vazia (tratado no início do método),
+            // ou se o caminhão já estava cheio.
+            // A decisão para onde o caminhão vai já foi tomada no início do método para zonas vazias.
+            // Se o caminhão já estava cheio, ele deve ir para a estação.
+            if (caminhao.getCargaAtual() >= caminhao.getCapacidadeMaxima()) {
+                System.out.printf("  • Caminhão %s já estava cheio ou atingiu capacidade máxima. Enviando para estação de transferência.%n", caminhao.getId());
+                GerenciadorAgenda.adicionarEvento(
+                        new TransferenciaParaEstacao(getTempo(), caminhao, zonaAtual));
+            }
+            // Se não coletou e não estava cheio, significa que não havia lixo suficiente ou outra condição impediu.
+            // Neste caso, a lógica acima para "zona limpa" já deve ter direcionado o caminhão.
         }
     }
 }

@@ -6,7 +6,7 @@ import static configsimulador.ConfiguracoesDoSimulador.CAPACIDADE_CAMINHAO_GRAND
  * Representa um caminhão de grande porte utilizado para o transporte de lixo
  * até o aterro sanitário. Este tipo de caminhão é utilizado nas estações de
  * transferência para consolidar a carga de diversos caminhões pequenos.
- *
+ * <p>
  * Possui controle de carga, identificação, e regras para partida ao aterro.
  */
 public class CaminhaoGrande {
@@ -19,17 +19,18 @@ public class CaminhaoGrande {
 
     /**
      * Contador estático para atribuição sequencial de IDs aos caminhões.
+     * Garante que cada caminhão grande tenha um ID único.
      */
     private static int contadorIds = 1;
 
     /**
-     * Capacidade máxima de carga do caminhão em quilogramas.
-     * Por padrão, é definida como 20.000 kg (20 toneladas), conforme configuração do simulador.
+     * Capacidade máxima de carga do caminhão em toneladas.
+     * Por padrão, é definida conforme {@link ConfiguracoesDoSimulador#CAPACIDADE_CAMINHAO_GRANDE}.
      */
     private final int capacidadeMaxima = CAPACIDADE_CAMINHAO_GRANDE;
 
     /**
-     * Quantidade atual de carga no caminhão (em kg).
+     * Quantidade atual de carga no caminhão (em toneladas).
      * Inicialmente definido como zero.
      */
     private int cargaAtual;
@@ -37,25 +38,26 @@ public class CaminhaoGrande {
     /**
      * Indica se o caminhão está carregado.
      * Pode ser utilizado para controle de estado dentro da estação de transferência.
+     * Não é diretamente usado para controle de capacidade, mas para lógica de despacho.
      */
     private boolean estaCarregado;
 
     /**
-     * Construtor padrão da classe.
-     * Inicializa o caminhão com carga igual a zero e atribui um ID único.
-     * O estado inicial é de "carregado", assumindo que ele está pronto para novas operações.
+     * Construtor padrão da classe CaminhaoGrande.
+     * Inicializa o caminhão com carga zero e atribui um ID único.
+     * O estado inicial é "carregado" ({@code true}), indicando que está disponível para carregar lixo.
      */
     public CaminhaoGrande() {
         this.id = contadorIds++;
         this.cargaAtual = 0;
-        estaCarregado = true;
+        this.estaCarregado = true; // Inicia como "carregado" no sentido de estar pronto para receber carga
     }
 
     /**
      * Verifica se o caminhão atingiu sua capacidade máxima e está pronto para
      * partir para o aterro sanitário.
      *
-     * @return true se a carga atual for igual ou superior à capacidade máxima.
+     * @return {@code true} se a carga atual for igual ou superior à capacidade máxima, {@code false} caso contrário.
      */
     public boolean prontoParaPartida() {
         return cargaAtual >= capacidadeMaxima;
@@ -63,50 +65,45 @@ public class CaminhaoGrande {
 
     /**
      * Adiciona uma quantidade de lixo à carga atual do caminhão.
-     * Se a soma ultrapassar a capacidade máxima, a carga é ajustada ao limite.
+     * Se a soma ultrapassar a capacidade máxima, a carga é ajustada para o limite da capacidade.
      *
-     * @param quantidade Quantidade de lixo a ser adicionada (em kg).
+     * @param quantidade Quantidade de lixo a ser adicionada (em toneladas).
      */
     public void adicionarCarga(int quantidade) {
-        if (cargaAtual + quantidade > capacidadeMaxima) {
-            cargaAtual = capacidadeMaxima;
-        } else {
-            cargaAtual += quantidade;
-        }
+        // Garante que a carga não exceda a capacidade máxima
+        this.cargaAtual = Math.min(this.cargaAtual + quantidade, capacidadeMaxima);
     }
 
     /**
      * Simula o descarregamento completo do caminhão no aterro sanitário.
-     * Após o descarregamento, a carga é zerada e o estado "carregado" é definido como falso.
+     * Após o descarregamento, a carga é zerada e o estado {@code estaCarregado} é definido como {@code false}.
      * Também imprime uma mensagem indicando a quantidade transportada.
      */
     public void descarregar() {
-        System.out.println("Caminhão grande partiu para o aterro com " + cargaAtual + "kg.");
+        System.out.println("Caminhão grande " + id + " partiu para o aterro com " + cargaAtual + "t.");
         cargaAtual = 0;
-        estaCarregado = false;
+        estaCarregado = false; // Após descarregar, não está mais "carregado" com lixo
 
-        // Lógica adicional pode ser implementada aqui futuramente.
-        /*
-         * - Tolerância de espera
-         * - Despacho automático após determinado tempo
-         * - Aguardando carregamento completo
-         */
+        // Lógica adicional pode ser implementada aqui futuramente, como:
+        // - Cálculo do tempo de viagem ao aterro e retorno.
+        // - Agendamento de um evento de retorno à estação.
     }
 
     /**
      * Simula o comportamento de espera do caminhão na estação de transferência,
      * aguardando ser carregado.
      *
-     * @return Sempre retorna true (pode ser adaptado para refletir o estado real).
+     * @return Sempre retorna {@code true} no momento, pode ser adaptado para refletir o estado real de espera.
      */
     public boolean aguardandoCarregamento() {
+        // Implementação futura pode adicionar lógica de tempo de espera, status, etc.
         return true;
     }
 
     /**
      * Retorna o identificador único do caminhão.
      *
-     * @return ID do caminhão.
+     * @return O ID do caminhão.
      */
     public int getId() {
         return id;
@@ -115,7 +112,7 @@ public class CaminhaoGrande {
     /**
      * Retorna a capacidade máxima de carga do caminhão.
      *
-     * @return Capacidade máxima em kg.
+     * @return A capacidade máxima em toneladas.
      */
     public int getCapacidadeMaxima() {
         return capacidadeMaxima;
@@ -124,16 +121,17 @@ public class CaminhaoGrande {
     /**
      * Retorna a carga atual presente no caminhão.
      *
-     * @return Carga atual em kg.
+     * @return A carga atual em toneladas.
      */
     public int getCargaAtual() {
         return cargaAtual;
     }
 
     /**
-     * Verifica se o caminhão está atualmente carregado.
+     * Verifica se o caminhão está atualmente carregado com lixo.
+     * Note: "carregado" aqui significa que possui lixo, não que está apto a carregar mais.
      *
-     * @return true se está carregado, false se está descarregado.
+     * @return {@code true} se está carregado com lixo, {@code false} se está vazio.
      */
     public boolean getEstaCarregado() {
         return estaCarregado;

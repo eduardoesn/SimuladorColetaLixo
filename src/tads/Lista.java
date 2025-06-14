@@ -31,40 +31,37 @@ public class Lista<T> {
      * Adiciona um elemento na posição especificada na lista.
      *
      * @param pos   A posição onde o elemento será inserido.
-     *              Deve estar no intervalo [0, tamanho].
+     * Deve estar no intervalo [0, tamanho].
      * @param valor O valor do elemento a ser inserido.
      * @return {@code true} se o elemento foi inserido com sucesso.
      * @throws IndexOutOfBoundsException Se a posição for inválida.
      */
     public boolean adicionar(int pos, T valor) {
         if (pos < 0 || pos > tamanho) {
-            throw new IndexOutOfBoundsException("Posição inválida: " + pos);
+            throw new IndexOutOfBoundsException("Posição inválida: " + pos + ", Tamanho atual: " + tamanho);
         }
 
-        NoLista<T> novo = new NoLista<>(valor);
+        NoLista<T> novoNo = new NoLista<>(valor);
 
         if (pos == 0) { // Inserção no início
-            if (head == null) {
-                head = novo;
-                tail = novo;
+            if (head == null) { // Lista vazia
+                head = novoNo;
+                tail = novoNo;
             } else {
-                novo.setProx(head);
-                head.setAnt(novo);
-                head = novo;
+                novoNo.setProx(head);
+                head.setAnt(novoNo);
+                head = novoNo;
             }
         } else if (pos == tamanho) { // Inserção no final
-            tail.setProx(novo);
-            novo.setAnt(tail);
-            tail = novo;
+            tail.setProx(novoNo);
+            novoNo.setAnt(tail);
+            tail = novoNo;
         } else { // Inserção no meio
-            NoLista<T> atual = head;
-            for (int i = 0; i < pos - 1; i++) {
-                atual = atual.getProx();
-            }
-            novo.setProx(atual.getProx());
-            atual.setProx(novo);
-            novo.getProx().setAnt(novo);
-            novo.setAnt(atual);
+            NoLista<T> atual = getNo(pos); // Obtém o nó na posição onde o novo nó será inserido
+            novoNo.setProx(atual);
+            novoNo.setAnt(atual.getAnt());
+            atual.getAnt().setProx(novoNo);
+            atual.setAnt(novoNo);
         }
         tamanho++;
         return true;
@@ -79,26 +76,28 @@ public class Lista<T> {
      */
     public void adicionarOrdenado(T elemento, Comparator<T> comparador) {
         if (elemento == null || comparador == null) {
-            throw new IllegalArgumentException("Elemento e comparador não podem ser nulos");
+            throw new IllegalArgumentException("Elemento e comparador não podem ser nulos.");
         }
 
+        // Caso especial: lista vazia ou elemento menor/igual ao primeiro
         if (head == null || comparador.compare(elemento, head.getValor()) <= 0) {
-            adicionar(0, elemento); // Inserção no início.
+            adicionar(0, elemento);
             return;
         }
 
+        // Caso especial: elemento maior/igual ao último
         if (comparador.compare(elemento, tail.getValor()) >= 0) {
-            adicionar(tamanho, elemento); // Inserção no final.
+            adicionar(tamanho, elemento);
             return;
         }
 
-        NoLista<T> atual = head;
-        int pos = 0;
+        // Inserção no meio da lista
+        NoLista<T> atual = head.getProx(); // Começa do segundo elemento
+        int pos = 1;
         while (atual != null && comparador.compare(elemento, atual.getValor()) > 0) {
             atual = atual.getProx();
             pos++;
         }
-
         adicionar(pos, elemento);
     }
 
@@ -108,14 +107,14 @@ public class Lista<T> {
      * @return O valor do nó removido ou {@code null} se a lista estiver vazia.
      */
     public T removerHead() {
-        if (head == null) {
+        if (estaVazia()) {
             return null;
         }
         T valor = head.getValor();
         head = head.getProx();
         if (head != null) {
             head.setAnt(null);
-        } else {
+        } else { // A lista ficou vazia
             tail = null;
         }
         tamanho--;
@@ -131,7 +130,7 @@ public class Lista<T> {
      */
     public boolean remover(int pos) {
         if (pos < 0 || pos >= tamanho || head == null) {
-            throw new IndexOutOfBoundsException("Posição inválida: " + pos);
+            throw new IndexOutOfBoundsException("Posição inválida para remoção: " + pos + ", Tamanho atual: " + tamanho);
         }
 
         if (tamanho == 1) { // Único elemento na lista.
@@ -139,12 +138,17 @@ public class Lista<T> {
             tail = null;
         } else if (pos == 0) { // Remover o primeiro elemento.
             head = head.getProx();
-            head.setAnt(null);
+            if (head != null) {
+                head.setAnt(null);
+            }
         } else if (pos == tamanho - 1) { // Remover o último elemento.
             tail = tail.getAnt();
-            tail.setProx(null);
+            if (tail != null) {
+                tail.setProx(null);
+            }
         } else { // Remover elemento no meio da lista.
             NoLista<T> atual = getNo(pos);
+            // Reajusta as referências do nó anterior e posterior
             atual.getAnt().setProx(atual.getProx());
             atual.getProx().setAnt(atual.getAnt());
         }
@@ -159,7 +163,9 @@ public class Lista<T> {
      * @return {@code true} se o elemento foi encontrado e removido; {@code false} caso contrário.
      */
     public boolean removerProcurado(T elemento) {
-        if (elemento == null || head == null) return false;
+        if (elemento == null || head == null) {
+            return false;
+        }
 
         NoLista<T> atual = head;
 
@@ -168,9 +174,11 @@ public class Lista<T> {
                 if (atual == head) { // Elemento é o head.
                     head = atual.getProx();
                     if (head != null) head.setAnt(null);
+                    else tail = null; // Lista ficou vazia
                 } else if (atual == tail) { // Elemento é o tail.
                     tail = atual.getAnt();
                     if (tail != null) tail.setProx(null);
+                    else head = null; // Lista ficou vazia (embora improvável aqui se atual não era o head)
                 } else { // Elemento no meio da lista.
                     atual.getAnt().setProx(atual.getProx());
                     atual.getProx().setAnt(atual.getAnt());
@@ -179,31 +187,30 @@ public class Lista<T> {
                 tamanho--;
                 return true;
             }
-
             atual = atual.getProx();
         }
-
         return false; // Elemento não encontrado.
     }
 
     /**
      * Retorna o nó correspondente à posição especificada.
+     * Este método otimiza a busca percorrendo do início ou do final, dependendo da proximidade da posição.
      *
-     * @param pos A posição do nó na lista.
+     * @param pos A posição do nó na lista (0-indexado).
      * @return O nó na posição ou {@code null} se a posição for inválida.
      */
     private NoLista<T> getNo(int pos) {
         if (pos < 0 || pos >= tamanho) {
-            return null;
+            return null; // Posição fora dos limites
         }
 
         NoLista<T> atual;
-        if (pos < tamanho / 2) { // Percorre do início até a posição.
+        if (pos < tamanho / 2) { // Percorre do início (head)
             atual = head;
             for (int i = 0; i < pos; i++) {
                 atual = atual.getProx();
             }
-        } else { // Percorre do final até a posição.
+        } else { // Percorre do final (tail)
             atual = tail;
             for (int i = tamanho - 1; i > pos; i--) {
                 atual = atual.getAnt();
@@ -243,6 +250,10 @@ public class Lista<T> {
      * Imprime os elementos da lista na ordem direta.
      */
     public void imprimir() {
+        if (estaVazia()) {
+            System.out.println("Lista vazia.");
+            return;
+        }
         NoLista<T> atual = head;
         while (atual != null) {
             System.out.print(atual.getValor() + " ");
@@ -255,6 +266,10 @@ public class Lista<T> {
      * Imprime os elementos da lista na ordem inversa.
      */
     public void imprimirReverso() {
+        if (estaVazia()) {
+            System.out.println("Lista vazia.");
+            return;
+        }
         NoLista<T> atual = tail;
         while (atual != null) {
             System.out.print(atual.getValor() + " ");
@@ -270,7 +285,7 @@ public class Lista<T> {
      * @return O valor do elemento na posição ou {@code null} se a posição for inválida.
      */
     public T getValor(int pos) {
-        NoLista<T> no = getNo(pos); // Obtém o nó da posição.
+        NoLista<T> no = getNo(pos);
         return no != null ? no.getValor() : null;
     }
 }

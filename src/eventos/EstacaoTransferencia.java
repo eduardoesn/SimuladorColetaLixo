@@ -12,48 +12,58 @@ import timer.Timer;
 public class EstacaoTransferencia extends Evento {
 
     /**
-     * Estação de transferência que irá receber o caminhão pequeno.
+     * A {@link EstacaoDeTransferencia} que irá receber o caminhão pequeno.
      */
     private EstacaoDeTransferencia estacao;
 
     /**
-     * Caminhão pequeno que está chegando à estação de transferência.
+     * O {@link CaminhaoPequeno} que está chegando à estação de transferência.
      */
     private CaminhaoPequeno caminhao;
 
     /**
-     * Construtor do evento de estação de transferência.
+     * Construtor do evento de chegada de caminhão a uma estação de transferência.
      *
      * @param tempo    Tempo simulado (em minutos) em que o evento ocorrerá.
      * @param estacao  Instância da estação de transferência que receberá o caminhão.
-     * @param caminhao Caminhão pequeno que será processado pela estação.
+     * @param caminhao O caminhão pequeno que será processado pela estação.
+     * @throws IllegalArgumentException se o tempo for negativo, ou se a estação ou o caminhão forem nulos.
      */
     public EstacaoTransferencia(int tempo, EstacaoDeTransferencia estacao, CaminhaoPequeno caminhao) {
         super(tempo);
+        if (estacao == null) {
+            throw new IllegalArgumentException("A estação de transferência não pode ser nula.");
+        }
+        if (caminhao == null) {
+            throw new IllegalArgumentException("O caminhão não pode ser nulo.");
+        }
         this.estacao = estacao;
         this.caminhao = caminhao;
     }
 
     /**
      * Retorna uma representação textual do evento, contendo o ID do caminhão,
-     * o nome da estação e o horário do evento formatado.
+     * o nome da estação de destino e o horário simulado do evento formatado.
      *
-     * @return String com a descrição do evento.
+     * @return Uma {@code String} com a descrição detalhada do evento.
      */
     @Override
     public String toString() {
         return String.format("EventoEstacaoTransferencia | Caminhão %s | Estação %s | Horário: %s",
                 caminhao.getId(),
                 estacao.getNomeEstacao(),
-                Timer.formatarHorarioSimulado(tempo));
+                Timer.formatarHorarioSimulado(getTempo()));
     }
 
     /**
-     * Executa o evento, acionando a lógica da estação de transferência para
-     * processar o caminhão pequeno que está chegando.
+     * Executa o evento de chegada do caminhão pequeno na estação de transferência.
+     * <p>
+     * Este método aciona a lógica da estação para receber o caminhão, que por sua vez
+     * gerencia o descarregamento do lixo e a interação com o caminhão grande,
+     * ou coloca o caminhão pequeno na fila de espera.
      */
     @Override
     public void executar() {
-        estacao.receberCaminhaoPequeno(caminhao, tempo);
+        estacao.receberCaminhaoPequeno(caminhao, getTempo());
     }
 }
