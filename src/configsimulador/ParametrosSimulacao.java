@@ -1,0 +1,44 @@
+package configsimulador;
+
+/**
+ * Contêiner de dados para armazenar os parâmetros de configuração da simulação
+ * fornecidos pela interface do usuário (GUI).
+ * <p>
+ * Isso permite passar de forma organizada todas as configurações necessárias
+ * para inicializar o simulador.
+ */
+public class ParametrosSimulacao {
+    private final int numCaminhoes2t;
+    private final int viagensCaminhoes2t;
+    private final int numCaminhoes4t;
+    private final int viagensCaminhoes4t;
+    private final int numCaminhoes8t;
+    private final int viagensCaminhoes8t;
+
+    /**
+     * Construtor para os parâmetros da simulação.
+     *
+     * @param numCaminhoes2t      Número de caminhões de 2 toneladas.
+     * @param viagensCaminhoes2t  Número de viagens para os caminhões de 2t.
+     * @param numCaminhoes4t      Número de caminhões de 4 toneladas.
+     * @param viagensCaminhoes4t  Número de viagens para os caminhões de 4t.
+     * @param numCaminhoes8t      Número de caminhões de 8 toneladas.
+     * @param viagensCaminhoes8t  Número de viagens para os caminhões de 8t.
+     */
+    public ParametrosSimulacao(int numCaminhoes2t, int viagensCaminhoes2t, int numCaminhoes4t, int viagensCaminhoes4t, int numCaminhoes8t, int viagensCaminhoes8t) {
+        this.numCaminhoes2t = numCaminhoes2t;
+        this.viagensCaminhoes2t = viagensCaminhoes2t;
+        this.numCaminhoes4t = numCaminhoes4t;
+        this.viagensCaminhoes4t = viagensCaminhoes4t;
+        this.numCaminhoes8t = numCaminhoes8t;
+        this.viagensCaminhoes8t = viagensCaminhoes8t;
+    }
+
+    // Getters
+    public int getNumCaminhoes2t() { return numCaminhoes2t; }
+    public int getViagensCaminhoes2t() { return viagensCaminhoes2t; }
+    public int getNumCaminhoes4t() { return numCaminhoes4t; }
+    public int getViagensCaminhoes4t() { return viagensCaminhoes4t; }
+    public int getNumCaminhoes8t() { return numCaminhoes8t; }
+    public int getViagensCaminhoes8t() { return viagensCaminhoes8t; }
+}
