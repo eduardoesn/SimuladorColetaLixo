@@ -1,6 +1,6 @@
+import configsimulador.ConfiguracoesDoSimulador;
 import configsimulador.ParametrosSimulacao;
 import configsimulador.Simulador;
-import configsimulador.ConfiguracoesDoSimulador;
 import eventos.Evento;
 import eventos.GerenciadorAgenda;
 import eventos.IEventoObserver;
@@ -36,7 +36,6 @@ public class MainFX extends Application implements IEventoObserver {
     private Button pausarBtn;
     private Button encerrarBtn;
 
-    // --- CAMPOS DE TEXTO MOVIDOS PARA VARIÁVEIS DE INSTÂNCIA ---
     private TextField horasField;
     private TextField segPorHoraField;
 
@@ -78,8 +77,7 @@ public class MainFX extends Application implements IEventoObserver {
         titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
         BorderPane.setAlignment(titulo, Pos.CENTER);
 
-        // --- HBOX DE CONTROLES MODIFICADA ---
-        HBox controles = new HBox(15); // Espaçamento ajustado
+        HBox controles = new HBox(15);
         controles.setPadding(new Insets(10));
         controles.setAlignment(Pos.CENTER);
 
@@ -89,17 +87,15 @@ public class MainFX extends Application implements IEventoObserver {
         pausarBtn.setDisable(true);
         encerrarBtn.setDisable(true);
 
-        // Criação dos novos elementos de configuração
         Separator separator = new Separator(Orientation.VERTICAL);
         Label horasLabel = new Label("Horas a Simular:");
         horasField = new TextField("24");
-        horasField.setPrefWidth(50); // Define uma largura menor
+        horasField.setPrefWidth(50);
 
         Label segLabel = new Label("Segundos por Hora:");
         segPorHoraField = new TextField("1");
-        segPorHoraField.setPrefWidth(50); // Define uma largura menor
+        segPorHoraField.setPrefWidth(50);
 
-        // Adiciona todos os elementos (botões e configs) na HBox superior
         controles.getChildren().addAll(
                 iniciarBtn, pausarBtn, encerrarBtn,
                 separator,
@@ -118,7 +114,6 @@ public class MainFX extends Application implements IEventoObserver {
         logArea.setPrefHeight(300);
         root.setBottom(logArea);
 
-        // --- VBOX DA ESQUERDA SIMPLIFICADA ---
         VBox configuracaoBox = new VBox(10);
         configuracaoBox.setPadding(new Insets(20));
         configuracaoBox.setAlignment(Pos.TOP_LEFT);
@@ -129,14 +124,13 @@ public class MainFX extends Application implements IEventoObserver {
 
         TextField c2Field = new TextField("2");
         TextField v2Field = new TextField("3");
-        TextField c4Field = new TextField("1");
+        TextField c4Field = new TextField("2");
         TextField v4Field = new TextField("3");
-        TextField c8Field = new TextField("1");
+        TextField c8Field = new TextField("2");
         TextField v8Field = new TextField("3");
-        TextField c10Field = new TextField("1");
+        TextField c10Field = new TextField("2");
         TextField v10Field = new TextField("3");
 
-        // Removemos os campos de config. da simulação daqui
         configuracaoBox.getChildren().addAll(configTitulo,
                 new Label("Caminhões de 2t:"), c2Field, new Label("Viagens por caminhão 2t:"), v2Field,
                 new Label("Caminhões de 4t:"), c4Field, new Label("Viagens por caminhão 4t:"), v4Field,
@@ -154,7 +148,6 @@ public class MainFX extends Application implements IEventoObserver {
 
         iniciarBtn.setOnAction(e -> {
             try {
-                // A leitura dos campos agora usa as variáveis de instância
                 this.segundosPorHoraSimulada = Integer.parseInt(segPorHoraField.getText().trim());
                 if (this.segundosPorHoraSimulada <= 0) this.segundosPorHoraSimulada = 1;
 
@@ -188,8 +181,6 @@ public class MainFX extends Application implements IEventoObserver {
         primaryStage.show();
     }
 
-    // O resto da classe (métodos de simulação, atualização, etc.) permanece o mesmo.
-    // ...
     private void iniciarSimulacao(ParametrosSimulacao params) {
         logArea.clear();
         this.tempoEventoAnterior = 0;
@@ -211,6 +202,10 @@ public class MainFX extends Application implements IEventoObserver {
             Simulador simulador = new Simulador();
             final Lista<Zonas> zonas = simulador.inicializar(params);
             final int tempoMaximoSimulacao = params.getHorasASimular() * 60;
+
+            Platform.runLater(() -> {
+                painelStatusCaminhoes.atualizarContagemCaminhoesGrandes(caminhoes.CaminhaoGrande.getContadorTotal());
+            });
 
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                  PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8)) {
@@ -259,6 +254,7 @@ public class MainFX extends Application implements IEventoObserver {
 
         simuladorThread.start();
     }
+
     private void finalizarVisualizacao() {
         logArea.appendText("\nSimulação concluída.\n");
         iniciarBtn.setDisable(false);
@@ -267,6 +263,7 @@ public class MainFX extends Application implements IEventoObserver {
         pausado = false;
         pausarBtn.setText("⏸ Pausar");
     }
+
     @Override
     public void onEvento(Evento evento) {
         Platform.runLater(() -> {
@@ -297,6 +294,7 @@ public class MainFX extends Application implements IEventoObserver {
             } else if (evento instanceof eventos.GeracaoCaminhaoGrande) {
                 eventos.GeracaoCaminhaoGrande eventoGeracao = (eventos.GeracaoCaminhaoGrande) evento;
                 atualizarVisualEstacao(eventoGeracao.getEstacao());
+                painelStatusCaminhoes.atualizarContagemCaminhoesGrandes(caminhoes.CaminhaoGrande.getContadorTotal());
             } else if (evento instanceof eventos.PartidaCaminhaoGrande) {
                 eventos.PartidaCaminhaoGrande eventoPartida = (eventos.PartidaCaminhaoGrande) evento;
                 Point2D posOrigem = COORDENADAS.get(eventoPartida.getEstacaoOrigem().getNomeEstacao());
@@ -315,8 +313,8 @@ public class MainFX extends Application implements IEventoObserver {
             relogio.atualizarTempo(evento.getTempo());
         });
     }
+
     private void inicializarElementosDoMapa(BorderPane root) {
-        // Zonas
         String[][] zonas = {{"Norte", "#A5D6A7", "100", "50"}, {"Sul", "#90CAF9", "100", "200"},
                 {"Centro", "#FFAB91", "300", "70"}, {"Sudeste", "#FFF59D", "300", "230"},
                 {"Leste", "#CE93D8", "500", "150"}};
@@ -346,7 +344,6 @@ public class MainFX extends Application implements IEventoObserver {
             mapa.getChildren().addAll(rect, label, barraLixo, valorLixo);
         }
 
-        // Estações
         Rectangle estA = new Rectangle(100, 60, Color.LIGHTBLUE);
         estA.setLayoutX(800);
         estA.setLayoutY(120);
@@ -363,12 +360,11 @@ public class MainFX extends Application implements IEventoObserver {
         labelB.setStyle("-fx-font-weight: bold;");
         mapa.getChildren().addAll(estA, labelA, estB, labelB);
 
-        // Barras de progresso para as estações
         ProgressBar barraEstacaoA = new ProgressBar(0);
         barraEstacaoA.setPrefWidth(80);
         barraEstacaoA.setLayoutX(810);
         barraEstacaoA.setLayoutY(160);
-        barraEstacaoA.setStyle("-fx-accent: #4CAF50;"); // Cor verde
+        barraEstacaoA.setStyle("-fx-accent: #4CAF50;");
         barraEstacaoA.setId("barra_Estacao_A");
 
         ProgressBar barraEstacaoB = new ProgressBar(0);
@@ -379,7 +375,7 @@ public class MainFX extends Application implements IEventoObserver {
         barraEstacaoB.setId("barra_Estacao_B");
 
         mapa.getChildren().addAll(barraEstacaoA, barraEstacaoB);
-        // Aterro Sanitário
+
         Rectangle aterroRect = new Rectangle(120, 80, Color.web("#607D8B"));
         aterroRect.setArcWidth(12);
         aterroRect.setArcHeight(12);
@@ -391,8 +387,6 @@ public class MainFX extends Application implements IEventoObserver {
         aterroLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: white;");
         mapa.getChildren().addAll(aterroRect, aterroLabel);
 
-
-        // Componentes da UI
         relogio = new RelogioSimulacao();
         relogio.setLayoutX(1050);
         relogio.setLayoutY(20);
@@ -539,6 +533,7 @@ public class MainFX extends Application implements IEventoObserver {
     public static class PainelStatusCaminhoes {
         private final VBox container;
         private final Map<String, HBox> linhasCaminhoes = new HashMap<>();
+        private final Label caminhoesGrandesLabel;
 
         public PainelStatusCaminhoes(Pane parent) {
             container = new VBox(5);
@@ -549,8 +544,15 @@ public class MainFX extends Application implements IEventoObserver {
             container.setPrefWidth(250);
             Label titulo = new Label("Status dos Caminhões");
             titulo.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-            container.getChildren().add(titulo);
+
+            caminhoesGrandesLabel = new Label("Caminhões Grandes Utilizados: 0");
+            caminhoesGrandesLabel.setStyle("-fx-font-weight: bold;");
+
+            container.getChildren().addAll(titulo, caminhoesGrandesLabel, new Separator());
             parent.getChildren().add(container);
+        }
+        public void atualizarContagemCaminhoesGrandes(int contagem) {
+            caminhoesGrandesLabel.setText("Caminhões Grandes Utilizados: " + contagem);
         }
 
         public void adicionarOuAtualizarCaminhao(String id, String status, int cargaAtual, int capacidade, String cor) {

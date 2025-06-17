@@ -4,6 +4,7 @@ import caminhoes.CaminhaoPequeno;
 import caminhoes.CaminhaoGrande;
 import configsimulador.ConfiguracoesDoSimulador;
 import configsimulador.Simulador;
+import eventos.ColetaLixo;
 import eventos.GeracaoCaminhaoGrande;
 import eventos.GerenciadorAgenda;
 import tads.Fila;
@@ -82,17 +83,9 @@ public class EstacaoDeTransferencia {
                     caminhaoGrandeReceber.getCargaAtual(), caminhaoGrandeReceber.getCapacidadeMaxima());
             System.out.printf("  • Horário previsto para fim da descarga: %s. Tempo de Descarga: %s%n",
                     Timer.formatarHorarioSimulado(tempoAtual + tempoDescarga), Timer.formatarDuracao(tempoDescarga));
-            System.out.printf("  → Caminhão %s volta para atividades.%n", caminhao.getId());
 
-            // CORREÇÃO APLICADA AQUI: Envia o caminhão para a próxima viagem
-            if (caminhao.podeViajarNovamente()) {
-                caminhao.registrarViagem(); // Gasta uma das viagens diárias
-                int tempoDeVolta = ConfiguracoesDoSimulador.VIAGEM_MIN_FORA_PICO; // Simula o tempo de volta para a zona
-                System.out.printf("  • Agendando próxima coleta para %s na zona %s.%n", caminhao.getId(), caminhao.getDestinoZona().getNome());
-                GerenciadorAgenda.adicionarEvento(new eventos.ColetaLixo(tempoAtual + tempoDescarga + tempoDeVolta, caminhao, caminhao.getDestinoZona()));
-            } else {
-                System.out.printf("  • Caminhão %s finalizou todas as suas viagens.%n", caminhao.getId());
-            }
+            // LÓGICA REATORADA: Chama o método auxiliar
+            agendarProximaViagem(caminhao, tempoAtual + tempoDescarga);
 
             if (caminhaoGrandeReceber.prontoParaPartida()) {
                 despacharCaminhaoGrande(tempoAtual + tempoDescarga);
@@ -124,15 +117,8 @@ public class EstacaoDeTransferencia {
 
             caminhaoFila.descarregarCarga();
 
-            // CORREÇÃO TAMBÉM APLICADA AQUI: Envia caminhões que estavam na fila de volta ao trabalho
-            if (caminhaoFila.podeViajarNovamente()) {
-                caminhaoFila.registrarViagem(); // Gasta uma das viagens diárias
-                int tempoDeVolta = ConfiguracoesDoSimulador.VIAGEM_MIN_FORA_PICO;
-                System.out.printf("  • Agendando próxima coleta para %s na zona %s.%n", caminhaoFila.getId(), caminhaoFila.getDestinoZona().getNome());
-                GerenciadorAgenda.adicionarEvento(new eventos.ColetaLixo(tempoAtual + tempoDeVolta, caminhaoFila, caminhaoFila.getDestinoZona()));
-            } else {
-                System.out.printf("  • Caminhão %s finalizou todas as suas viagens.%n", caminhaoFila.getId());
-            }
+            // LÓGICA REATORADA: Chama o método auxiliar
+            agendarProximaViagem(caminhaoFila, tempoAtual);
         }
 
         if (filaCaminhoesPequeos.estaVazia()) {
@@ -146,5 +132,22 @@ public class EstacaoDeTransferencia {
         this.caminhaoGrandeReceber = new CaminhaoGrande();
         System.out.println("[ESTAÇÃO " + nomeEstacao + "] Novo caminhão grande " + caminhaoGrandeReceber.getId() + " gerado.");
         descarregarFilaEspera(tempoAtual);
+    }
+
+    /**
+     * MÉTODO ADICIONADO: Centraliza a lógica para enviar um caminhão de volta à sua rota.
+     * Verifica se o caminhão ainda tem viagens, registra a viagem e agenda a próxima coleta.
+     * @param caminhao O caminhão que terminou o descarregamento.
+     * @param tempoDeSaida O tempo de simulação em que o caminhão fica disponível para a próxima tarefa.
+     */
+    private void agendarProximaViagem(CaminhaoPequeno caminhao, int tempoDeSaida) {
+        if (caminhao.podeViajarNovamente()) {
+            caminhao.registrarViagem(); // Gasta uma das viagens diárias
+            int tempoDeVolta = ConfiguracoesDoSimulador.VIAGEM_MIN_FORA_PICO; // Simula o tempo de volta para a zona
+            System.out.printf("  → Caminhão %s volta para atividades. Agendando próxima coleta na zona %s.%n", caminhao.getId(), caminhao.getDestinoZona().getNome());
+            GerenciadorAgenda.adicionarEvento(new ColetaLixo(tempoDeSaida + tempoDeVolta, caminhao, caminhao.getDestinoZona()));
+        } else {
+            System.out.printf("  → Caminhão %s finalizou todas as suas viagens diárias.%n", caminhao.getId());
+        }
     }
 }
