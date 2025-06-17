@@ -36,3 +36,7 @@ Clique em Apply e OK.
 3. Rodar a Simulação
 Clique no botão Run (o triângulo verde) na sua IDE para executar a classe MainFX.
 Uma janela da aplicação gráfica será aberta, permitindo que você ajuste os parâmetros da simulação (número de caminhões, horas a simular, etc.) e observe a dinâmica da coleta de lixo em Teresina.
+
+Autores:
+Eduardo Evelin
+Mateus Farias
