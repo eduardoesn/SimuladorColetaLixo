@@ -23,10 +23,7 @@ public class CaminhaoGrande {
      */
     private static int contadorIds = 1;
 
-    /**
-     * Capacidade máxima de carga do caminhão em toneladas.
-     * Por padrão, é definida conforme {@link ConfiguracoesDoSimulador#CAPACIDADE_CAMINHAO_GRANDE}.
-     */
+
     private final int capacidadeMaxima = CAPACIDADE_CAMINHAO_GRANDE;
 
     /**
@@ -135,5 +132,20 @@ public class CaminhaoGrande {
      */
     public boolean getEstaCarregado() {
         return estaCarregado;
+    }
+
+    /**
+     * Retorna o número total de caminhões grandes instanciados.
+     *
+     * @return O valor do contador de IDs.
+     */
+    public static int getContadorTotal() {
+        // O contador é incrementado a cada nova instância, então o valor (contadorIds - 1)
+        // representa o total de caminhões criados.
+        return contadorIds - 1;
+    }
+
+    public static void resetContador() {
+        contadorIds = 1;
     }
 }

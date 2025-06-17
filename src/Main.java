@@ -16,19 +16,17 @@ public class Main {
      */
     public static void main(String[] args) {
         Simulador simulador = new Simulador();
-
-        // Como o método iniciar() agora exige parâmetros, criamos um conjunto padrão
-        // para a execução via console. Estes valores podem ser alterados para testes.
         ParametrosSimulacao parametrosPadrao = new ParametrosSimulacao(
                 2, // número de caminhões de 2t
                 3, // viagens por caminhão de 2t
                 1, // número de caminhões de 4t
                 3, // viagens por caminhão de 4t
                 1, // número de caminhões de 8t
-                3  // viagens por caminhão de 8t
+                3, // viagens por caminhão de 8t
+                1, // número de caminhões de 10t
+                3,  // viagens por caminhão de 10t
+                8
         );
-
-        // Inicia a simulação com os parâmetros padrão
-        simulador.iniciar(parametrosPadrao);
+        simulador.inicializar(parametrosPadrao);
     }
 }

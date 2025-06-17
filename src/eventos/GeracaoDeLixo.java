@@ -57,4 +57,8 @@ public class GeracaoDeLixo extends Evento {
         zona.gerarLixoDiario(); // Chama o método da zona para gerar e acumular lixo
         System.out.println(); // Linha em branco para melhor legibilidade
     }
+
+    public Zonas getZona() {
+        return zona;
+    }
 }

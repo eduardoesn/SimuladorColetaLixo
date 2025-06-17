@@ -46,6 +46,12 @@ public class CaminhaoPequeno {
     private GeracaoCaminhaoGrande eventoAgendado;
 
     /**
+     * Armazena o tempo (em minutos) em que o caminhão entrou na fila de espera da estação.
+     */
+    private int tempoEntradaFila;
+
+
+    /**
      * Construtor da classe CaminhaoPequeno.
      * Inicializa um novo caminhão com suas propriedades básicas.
      *
@@ -61,6 +67,7 @@ public class CaminhaoPequeno {
         this.viagensRestantes = viagensRestantes;
         this.destinoZona = destinoZona;
         this.eventoAgendado = null; // Nenhum evento de geração de caminhão grande agendado inicialmente
+        this.tempoEntradaFila = 0;
     }
 
     /**
@@ -174,5 +181,13 @@ public class CaminhaoPequeno {
         } else {
             System.out.println("[CAMINHÃO " + id + "] Limite de viagens diárias atingido.");
         }
+    }
+
+    public int getTempoEntradaFila() {
+        return tempoEntradaFila;
+    }
+
+    public void setTempoEntradaFila(int tempoEntradaFila) {
+        this.tempoEntradaFila = tempoEntradaFila;
     }
 }

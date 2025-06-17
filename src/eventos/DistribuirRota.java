@@ -51,6 +51,13 @@ public class DistribuirRota {
                     ConfiguracoesDoSimulador.CAPACIDADE_CAMINHAO_8T, params.getViagensCaminhoes8t());
         }
 
+        // Distribui caminhões de 10 toneladas
+        for (int i = 0; i < params.getNumCaminhoes10t(); i++) {
+            criarEAgendarCaminhao(caminhoes, zonas, caminhaoIndex++, "C10-" + (i + 1),
+                    ConfiguracoesDoSimulador.CAPACIDADE_CAMINHAO_10T, params.getViagensCaminhoes10t());
+        }
+
+
         System.out.println("Distribuição de rotas concluída. Total de caminhões: " + caminhoes.getTamanho());
         return caminhoes;
     }

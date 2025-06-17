@@ -1,6 +1,6 @@
 package configsimulador;
 
-import caminhoes.CaminhaoPequeno;
+import caminhoes.CaminhaoGrande;
 import estacoes.EstacaoDeTransferencia;
 import eventos.DistribuirRota;
 import eventos.GerenciadorAgenda;
@@ -12,23 +12,26 @@ import zonas.ZonasParametradas;
 
 /**
  * Classe principal responsável por gerenciar a simulação da coleta de lixo.
- * Foi modificada para ser inicializada com parâmetros dinâmicos vindos de uma UI.
+ * Refatorada para apenas inicializar o estado da simulação e exibir relatórios.
  */
 public class Simulador {
 
-    private boolean rodando = false;
+    private static long tempoTotalEspera = 0;
+    private static int totalCaminhoesNaFila = 0;
 
     /**
-     * Inicia a execução da simulação de coleta de lixo com base nos parâmetros fornecidos.
-     *
-     * @param params Objeto contendo todas as configurações da simulação (nº de caminhões, viagens, etc.).
+     * Prepara a simulação para ser executada. Cria as zonas, estações, caminhões
+     * e os eventos iniciais, mas não inicia o loop de processamento.
+     * @param params Parâmetros da simulação vindos da UI.
+     * @return A lista de zonas, para ser usada no relatório final.
      */
-    public void iniciar(ParametrosSimulacao params) {
+    public Lista<Zonas> inicializar(ParametrosSimulacao params) {
         System.out.println("=================== S I M U L A D O R ==================");
-        System.out.println("Iniciando simulação de coleta de lixo em Teresina com parâmetros da UI.");
+        System.out.println("Inicializando estado da simulação com parâmetros da UI.");
 
-        // Limpa a agenda de eventos de simulações anteriores para garantir um início limpo
+        // Limpa a agenda de eventos e reseta estatísticas de simulações anteriores
         GerenciadorAgenda.reset();
+        resetEstatisticas();
 
         // 1. Inicializa as estações de transferência
         EstacaoDeTransferencia estA = new EstacaoDeTransferencia("Estação A");
@@ -48,15 +51,22 @@ public class Simulador {
         // 5. Distribui os caminhões para as rotas com base nos parâmetros da UI
         DistribuirRota.distribuir(zonas, params);
 
-        // 6. Processa todos os eventos agendados
-        this.rodando = true;
-        GerenciadorAgenda.processarEventos();
-        this.rodando = false;
+        System.out.println("Estado inicial configurado. A simulação irá rodar por " + params.getHorasASimular() + " horas simuladas.");
 
-        // 7. Recupera o tempo final e exibe os resultados
+        // Retorna a lista de zonas para que o relatório final possa ser gerado
+        return zonas;
+    }
+
+    /**
+     * Imprime o relatório final da simulação no console.
+     * @param zonas A lista de zonas para exibir o lixo restante.
+     */
+    public void exibirRelatorioFinal(Lista<Zonas> zonas) {
         int tempoFinal = GerenciadorAgenda.getTempoUltimoEvento();
+
+        System.out.println("\n[PROCESSAMENTO DE EVENTOS CONCLUÍDO]");
         System.out.println("===========================================================");
-        System.out.println("Simulação finalizada com sucesso!");
+        System.out.println("Simulação finalizada!");
         System.out.println("Tempo total de simulação: " + Timer.formatarDuracao(tempoFinal)
                 + " (encerra às " + Timer.formatarHorarioSimulado(tempoFinal) + ")");
         System.out.println("\n[LIXO RESTANTE NAS ZONAS]");
@@ -65,13 +75,21 @@ public class Simulador {
             Zonas zona = zonas.getValor(i);
             System.out.println("• " + zona.getNome() + ": " + zona.getLixoAcumulado() + "t");
         }
+        System.out.println("\n[ESTATÍSTICAS FINAIS]");
+        System.out.println("• Total de caminhões grandes de 20t utilizados: " + CaminhaoGrande.getContadorTotal());
+
+        if (totalCaminhoesNaFila > 0) {
+            double tempoMedioEspera = (double) tempoTotalEspera / totalCaminhoesNaFila;
+            System.out.println("• Tempo médio de espera na fila da estação: " + Timer.formatarDuracao((int) tempoMedioEspera));
+        } else {
+            System.out.println("• Nenhum caminhão precisou esperar na fila da estação.");
+        }
         System.out.println("===========================================================");
         System.out.println("Último evento processado: " + GerenciadorAgenda.getUltimoEvento());
     }
 
     /**
      * Inicializa as zonas de coleta parametrizadas.
-     *
      * @return Uma {@link Lista} contendo as instâncias das zonas configuradas.
      */
     public Lista<Zonas> inicializarZonas() {
@@ -85,10 +103,22 @@ public class Simulador {
     }
 
     /**
-     * Finaliza a simulação.
+     * Registra o tempo de espera de um caminhão que saiu da fila.
+     * @param tempoEspera O tempo em minutos que o caminhão esperou.
      */
-    public void encerrar() {
-        System.out.println("Simulação encerrada manualmente.");
-        this.rodando = false;
+    public static void registrarTempoEspera(int tempoEspera) {
+        if (tempoEspera > 0) {
+            tempoTotalEspera += tempoEspera;
+            totalCaminhoesNaFila++;
+        }
+    }
+
+    /**
+     * Reseta as estatísticas para uma nova execução da simulação.
+     */
+    public static void resetEstatisticas() {
+        tempoTotalEspera = 0;
+        totalCaminhoesNaFila = 0;
+        CaminhaoGrande.resetContador(); // Adicionado reset do contador de caminhões grandes
     }
 }

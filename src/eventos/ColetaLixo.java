@@ -66,6 +66,19 @@ public class ColetaLixo extends Evento {
                 Timer.formatarHorarioSimulado(getTempo()));
     }
 
+    // ===================================================================
+    // MÉTODO ADICIONADO PARA CORRIGIR O ERRO
+    // ===================================================================
+    public caminhoes.CaminhaoPequeno getCaminhao() {
+        return this.caminhao;
+    }
+
+    public Zonas getZona() {
+        return zonaAtual;
+    }
+    // ===================================================================
+
+
     /**
      * Executa a lógica do evento de coleta de lixo.
      * O caminhão tenta coletar lixo da zona até que sua capacidade seja atingida

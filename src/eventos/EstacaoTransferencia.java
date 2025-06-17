@@ -42,6 +42,23 @@ public class EstacaoTransferencia extends Evento {
     }
 
     /**
+     * Retorna o caminhão associado a este evento.
+     * @return O caminhão pequeno.
+     */
+    public CaminhaoPequeno getCaminhao() {
+        return this.caminhao;
+    }
+
+    /**
+     * Retorna a estação associada a este evento.
+     * @return A estação de transferência.
+     */
+    public EstacaoDeTransferencia getEstacao() {
+        return estacao;
+    }
+
+
+    /**
      * Retorna uma representação textual do evento, contendo o ID do caminhão,
      * o nome da estação de destino e o horário simulado do evento formatado.
      *

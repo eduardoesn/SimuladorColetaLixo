@@ -14,6 +14,10 @@ public class ParametrosSimulacao {
     private final int viagensCaminhoes4t;
     private final int numCaminhoes8t;
     private final int viagensCaminhoes8t;
+    private final int numCaminhoes10t;
+    private final int viagensCaminhoes10t;
+    private final int horasASimular;
+
 
     /**
      * Construtor para os parâmetros da simulação.
@@ -24,14 +28,19 @@ public class ParametrosSimulacao {
      * @param viagensCaminhoes4t  Número de viagens para os caminhões de 4t.
      * @param numCaminhoes8t      Número de caminhões de 8 toneladas.
      * @param viagensCaminhoes8t  Número de viagens para os caminhões de 8t.
+     * @param numCaminhoes10t     Número de caminhões de 10 toneladas.
+     * @param viagensCaminhoes10t Número de viagens para os caminhões de 10t.
      */
-    public ParametrosSimulacao(int numCaminhoes2t, int viagensCaminhoes2t, int numCaminhoes4t, int viagensCaminhoes4t, int numCaminhoes8t, int viagensCaminhoes8t) {
+    public ParametrosSimulacao(int numCaminhoes2t, int viagensCaminhoes2t, int numCaminhoes4t, int viagensCaminhoes4t, int numCaminhoes8t, int viagensCaminhoes8t, int numCaminhoes10t, int viagensCaminhoes10t, int horasASimular) {
         this.numCaminhoes2t = numCaminhoes2t;
         this.viagensCaminhoes2t = viagensCaminhoes2t;
         this.numCaminhoes4t = numCaminhoes4t;
         this.viagensCaminhoes4t = viagensCaminhoes4t;
         this.numCaminhoes8t = numCaminhoes8t;
         this.viagensCaminhoes8t = viagensCaminhoes8t;
+        this.numCaminhoes10t = numCaminhoes10t;
+        this.viagensCaminhoes10t = viagensCaminhoes10t;
+        this.horasASimular = horasASimular;
     }
 
     // Getters
@@ -41,4 +50,8 @@ public class ParametrosSimulacao {
     public int getViagensCaminhoes4t() { return viagensCaminhoes4t; }
     public int getNumCaminhoes8t() { return numCaminhoes8t; }
     public int getViagensCaminhoes8t() { return viagensCaminhoes8t; }
+    public int getNumCaminhoes10t() { return numCaminhoes10t; }
+    public int getViagensCaminhoes10t() { return viagensCaminhoes10t; }
+
+    public int getHorasASimular() { return horasASimular; }
 }

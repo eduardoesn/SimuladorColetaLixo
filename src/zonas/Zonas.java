@@ -112,4 +112,8 @@ public class Zonas {
     public String getNome() {
         return nome;
     }
+
+    public int getLixoMax() {
+        return lixoMax;
+    }
 }
