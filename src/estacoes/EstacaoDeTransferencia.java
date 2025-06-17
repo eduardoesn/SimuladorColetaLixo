@@ -10,30 +10,62 @@ import eventos.GerenciadorAgenda;
 import tads.Fila;
 import timer.Timer;
 
+/**
+ * Representa uma estação de transferência no sistema de coleta de lixo.
+ * Esta classe gerencia a chegada de caminhões pequenos, o descarregamento de sua carga
+ * em um caminhão grande, a fila de espera e o despacho do caminhão grande para o aterro.
+ */
 public class EstacaoDeTransferencia {
 
     private String nomeEstacao;
     private Fila<CaminhaoPequeno> filaCaminhoesPequeos;
     private CaminhaoGrande caminhaoGrandeReceber;
 
+    /**
+     * Construtor da EstacaoDeTransferencia.
+     *
+     * @param nomeEstacao O nome identificador da estação.
+     */
     public EstacaoDeTransferencia(String nomeEstacao) {
         this.nomeEstacao = nomeEstacao;
         this.filaCaminhoesPequeos = new Fila<>();
         this.caminhaoGrandeReceber = new CaminhaoGrande();
     }
 
+    /**
+     * Retorna o nome da estação.
+     *
+     * @return O nome da estação.
+     */
     public String getNomeEstacao() {
         return nomeEstacao;
     }
 
+    /**
+     * Retorna a fila de caminhões pequenos que estão esperando para descarregar.
+     *
+     * @return A fila de caminhões pequenos.
+     */
     public Fila<CaminhaoPequeno> getFilaCaminhoesPequeos() {
         return filaCaminhoesPequeos;
     }
 
+    /**
+     * Retorna o caminhão grande que está atualmente na estação recebendo lixo.
+     *
+     * @return O caminhão grande atual.
+     */
     public CaminhaoGrande getCaminhaoGrande() {
         return caminhaoGrandeReceber;
     }
 
+    /**
+     * Despacha o caminhão grande atual para o aterro sanitário.
+     * Este método agenda um evento de partida, descarrega o caminhão (simulado),
+     * e, se houver caminhões pequenos na fila, gera um novo caminhão grande para atendê-los.
+     *
+     * @param tempoAtual O tempo atual da simulação para agendar os próximos eventos.
+     */
     public void despacharCaminhaoGrande(int tempoAtual) {
         if (this.caminhaoGrandeReceber != null) {
             System.out.println("  • Despachando caminhão grande " + this.caminhaoGrandeReceber.getId() + " para o aterro.");
@@ -46,6 +78,14 @@ public class EstacaoDeTransferencia {
         }
     }
 
+    /**
+     * Processa a chegada de um caminhão pequeno à estação.
+     * Se o caminhão grande estiver disponível, o pequeno descarrega. Caso contrário,
+     * o caminhão pequeno é enfileirado e um evento para gerar um novo caminhão grande é agendado.
+     *
+     * @param caminhao   O caminhão pequeno que chegou.
+     * @param tempoAtual O tempo atual da simulação.
+     */
     public void receberCaminhaoPequeno(CaminhaoPequeno caminhao, int tempoAtual) {
         System.out.println("== ESTAÇÃO ==");
         System.out.printf("[%s]%n", Timer.formatarHorarioSimulado(tempoAtual));
@@ -84,7 +124,6 @@ public class EstacaoDeTransferencia {
             System.out.printf("  • Horário previsto para fim da descarga: %s. Tempo de Descarga: %s%n",
                     Timer.formatarHorarioSimulado(tempoAtual + tempoDescarga), Timer.formatarDuracao(tempoDescarga));
 
-            // LÓGICA REATORADA: Chama o método auxiliar
             agendarProximaViagem(caminhao, tempoAtual + tempoDescarga);
 
             if (caminhaoGrandeReceber.prontoParaPartida()) {
@@ -94,6 +133,12 @@ public class EstacaoDeTransferencia {
         System.out.println();
     }
 
+    /**
+     * Tenta descarregar os caminhões pequenos da fila de espera no caminhão grande atual.
+     * O processo continua até a fila esvaziar ou o caminhão grande encher.
+     *
+     * @param tempoAtual O tempo atual da simulação.
+     */
     private void descarregarFilaEspera(int tempoAtual) {
         System.out.printf("[%s] [ESTAÇÃO %s] Tentando descarregar fila de espera...%n",
                 Timer.formatarHorarioSimulado(tempoAtual), nomeEstacao);
@@ -117,7 +162,6 @@ public class EstacaoDeTransferencia {
 
             caminhaoFila.descarregarCarga();
 
-            // LÓGICA REATORADA: Chama o método auxiliar
             agendarProximaViagem(caminhaoFila, tempoAtual);
         }
 
@@ -128,6 +172,11 @@ public class EstacaoDeTransferencia {
         }
     }
 
+    /**
+     * Gera um novo caminhão grande para a estação e inicia o processo de descarregar a fila de espera.
+     *
+     * @param tempoAtual O tempo atual da simulação.
+     */
     public void gerarNovoCaminhaoGrande(int tempoAtual) {
         this.caminhaoGrandeReceber = new CaminhaoGrande();
         System.out.println("[ESTAÇÃO " + nomeEstacao + "] Novo caminhão grande " + caminhaoGrandeReceber.getId() + " gerado.");
@@ -135,8 +184,9 @@ public class EstacaoDeTransferencia {
     }
 
     /**
-     * MÉTODO ADICIONADO: Centraliza a lógica para enviar um caminhão de volta à sua rota.
+     * Centraliza a lógica para enviar um caminhão de volta à sua rota.
      * Verifica se o caminhão ainda tem viagens, registra a viagem e agenda a próxima coleta.
+     *
      * @param caminhao O caminhão que terminou o descarregamento.
      * @param tempoDeSaida O tempo de simulação em que o caminhão fica disponível para a próxima tarefa.
      */

@@ -6,32 +6,31 @@ import estacoes.EstacaoDeTransferencia;
  * Classe utilitária responsável por determinar a estação de transferência associada a uma determinada zona.
  * <p>
  * Essa classe mapeia zonas específicas a estações de transferência predefinidas (Estação A e Estação B),
- * simulando a proximidade ou designação de rotas.
+ * simulando a proximidade ou designação de rotas. Todos os seus métodos são estáticos.
  */
 public class DistanciaZonas {
 
-    /** Referência para a primeira estação de transferência associada. */
+    /** Referência para a primeira estação de transferência (Estação A). */
     private static EstacaoDeTransferencia estacaoA;
 
-    /** Referência para a segunda estação de transferência associada. */
+    /** Referência para a segunda estação de transferência (Estação B). */
     private static EstacaoDeTransferencia estacaoB;
 
     /**
-     * Construtor privado para evitar a instanciação.
-     * Esta é uma classe utilitária e seus métodos são estáticos.
+     * Construtor privado para evitar a instanciação, pois esta é uma classe utilitária.
      */
     private DistanciaZonas() {
         // Previne instanciação
     }
 
     /**
-     * Configura as estações de transferência que serão utilizadas para mapear as zonas.
+     * Configura as instâncias das estações de transferência que serão utilizadas para mapear as zonas.
      * <p>
      * Este método **deve ser chamado** antes de qualquer tentativa de usar
      * o método {@link #getEstacaoPara(Zonas)}, para garantir que as estações estejam definidas.
      *
-     * @param a A primeira estação de transferência a ser configurada.
-     * @param b A segunda estação de transferência a ser configurada.
+     * @param a A primeira estação de transferência a ser configurada (geralmente Estação A).
+     * @param b A segunda estação de transferência a ser configurada (geralmente Estação B).
      */
     public static void configurar(EstacaoDeTransferencia a, EstacaoDeTransferencia b) {
         estacaoA = a;

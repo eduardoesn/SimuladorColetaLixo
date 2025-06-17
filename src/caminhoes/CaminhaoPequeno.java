@@ -23,13 +23,11 @@ public class CaminhaoPequeno {
 
     /**
      * Quantidade atual de carga no caminhão, em toneladas.
-     * Inicialmente zero.
      */
     private int cargaAtual;
 
     /**
      * Número de viagens restantes que o caminhão pode realizar no dia.
-     * Este contador é decrementado a cada viagem.
      */
     private int viagensRestantes;
 
@@ -39,9 +37,7 @@ public class CaminhaoPequeno {
     private Zonas destinoZona;
 
     /**
-     * Evento de geração de caminhão grande associado a este caminhão,
-     * caso ele precise descarregar e a estação necessite de um caminhão grande.
-     * Permite cancelar o evento se o caminhão grande se tornar disponível antes.
+     * Evento de geração de caminhão grande associado a este caminhão.
      */
     private GeracaoCaminhaoGrande eventoAgendado;
 
@@ -53,7 +49,6 @@ public class CaminhaoPequeno {
 
     /**
      * Construtor da classe CaminhaoPequeno.
-     * Inicializa um novo caminhão com suas propriedades básicas.
      *
      * @param id               Identificador do caminhão (ex: "C1", "C2").
      * @param capacidadeMaxima Capacidade máxima de carga do caminhão em toneladas.
@@ -63,16 +58,15 @@ public class CaminhaoPequeno {
     public CaminhaoPequeno(String id, int capacidadeMaxima, int viagensRestantes, Zonas destinoZona) {
         this.id = id;
         this.capacidadeMaxima = capacidadeMaxima;
-        this.cargaAtual = 0; // Caminhão começa vazio
+        this.cargaAtual = 0;
         this.viagensRestantes = viagensRestantes;
         this.destinoZona = destinoZona;
-        this.eventoAgendado = null; // Nenhum evento de geração de caminhão grande agendado inicialmente
+        this.eventoAgendado = null;
         this.tempoEntradaFila = 0;
     }
 
     /**
      * Retorna a capacidade máxima de carga do caminhão.
-     *
      * @return Capacidade máxima em toneladas.
      */
     public int getCapacidadeMaxima() {
@@ -81,7 +75,6 @@ public class CaminhaoPequeno {
 
     /**
      * Retorna o número de viagens restantes disponíveis para o caminhão no dia.
-     *
      * @return Número de viagens restantes.
      */
     public int getViagensRestantes() {
@@ -90,7 +83,6 @@ public class CaminhaoPequeno {
 
     /**
      * Retorna o identificador único do caminhão.
-     *
      * @return O ID do caminhão.
      */
     public String getId() {
@@ -99,7 +91,6 @@ public class CaminhaoPequeno {
 
     /**
      * Retorna a quantidade atual de carga no caminhão.
-     *
      * @return Carga atual em toneladas.
      */
     public int getCargaAtual() {
@@ -108,7 +99,6 @@ public class CaminhaoPequeno {
 
     /**
      * Retorna a zona de destino atual para a coleta de lixo.
-     *
      * @return A zona de destino.
      */
     public Zonas getDestinoZona() {
@@ -116,20 +106,16 @@ public class CaminhaoPequeno {
     }
 
     /**
-     * Retorna o evento de geração de caminhão grande que foi agendado para este caminhão pequeno,
-     * caso ele esteja aguardando descarregamento em uma estação sem caminhão grande disponível.
-     *
-     * @return O evento agendado de transferência para caminhão grande, ou {@code null} se não houver.
+     * Retorna o evento de geração de caminhão grande que foi agendado para este caminhão.
+     * @return O evento agendado ou {@code null} se não houver.
      */
     public GeracaoCaminhaoGrande getEventoAgendado() {
         return eventoAgendado;
     }
 
     /**
-     * Define o evento de geração de caminhão grande que será associado a este caminhão pequeno.
-     * Isso é usado para permitir o cancelamento do evento se a situação mudar.
-     *
-     * @param eventoAgendado O evento a ser associado. Pode ser {@code null} para remover a associação.
+     * Define o evento de geração de caminhão grande associado a este caminhão.
+     * @param eventoAgendado O evento a ser associado.
      */
     public void setEventoAgendado(GeracaoCaminhaoGrande eventoAgendado) {
         this.eventoAgendado = eventoAgendado;
@@ -137,10 +123,8 @@ public class CaminhaoPequeno {
 
     /**
      * Tenta adicionar uma quantidade de carga ao caminhão.
-     * A carga só será adicionada se a quantidade total não exceder a capacidade máxima do caminhão.
-     *
      * @param quantidade Quantidade de lixo a ser coletada (em toneladas).
-     * @return {@code true} se a carga foi adicionada com sucesso, {@code false} caso a capacidade máxima seja excedida.
+     * @return {@code true} se a carga foi adicionada, {@code false} caso contrário.
      */
     public boolean coletarCarga(int quantidade) {
         if (cargaAtual + quantidade <= capacidadeMaxima) {
@@ -153,8 +137,7 @@ public class CaminhaoPequeno {
     }
 
     /**
-     * Descarrega toda a carga do caminhão, resetando a {@code cargaAtual} para zero.
-     * Simula o esvaziamento do caminhão em uma estação de transferência ou aterro.
+     * Descarrega toda a carga do caminhão, resetando a carga atual para zero.
      */
     public void descarregarCarga() {
         cargaAtual = 0;
@@ -163,8 +146,7 @@ public class CaminhaoPequeno {
 
     /**
      * Verifica se o caminhão ainda pode realizar mais viagens de coleta no dia.
-     *
-     * @return {@code true} se houver viagens restantes ({@code viagensRestantes > 0}), {@code false} caso contrário.
+     * @return {@code true} se houver viagens restantes, {@code false} caso contrário.
      */
     public boolean podeViajarNovamente() {
         return viagensRestantes > 0;
@@ -172,7 +154,6 @@ public class CaminhaoPequeno {
 
     /**
      * Registra que uma viagem foi realizada, decrementando o contador de viagens restantes.
-     * Se o número de viagens restantes for zero, o caminhão não poderá mais viajar para coleta.
      */
     public void registrarViagem() {
         if (viagensRestantes > 0) {
@@ -183,10 +164,18 @@ public class CaminhaoPequeno {
         }
     }
 
+    /**
+     * Retorna o tempo de simulação em que o caminhão entrou na fila de uma estação.
+     * @return O tempo de entrada na fila.
+     */
     public int getTempoEntradaFila() {
         return tempoEntradaFila;
     }
 
+    /**
+     * Define o tempo de simulação em que o caminhão entra na fila de uma estação.
+     * @param tempoEntradaFila O tempo de entrada na fila.
+     */
     public void setTempoEntradaFila(int tempoEntradaFila) {
         this.tempoEntradaFila = tempoEntradaFila;
     }

@@ -8,7 +8,7 @@ package tads;
  */
 public class NoLista<T> {
     /**
-     * Valor armazenado no nó.
+     * Valor (dado) armazenado no nó.
      */
     private T valor;
 

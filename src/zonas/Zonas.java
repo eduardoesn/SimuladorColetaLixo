@@ -8,9 +8,21 @@ import java.util.Random;
  * e um registro da quantidade de lixo acumulado.
  */
 public class Zonas {
+    /**
+     * O nome da zona (ex: "Sul", "Norte").
+     */
     private String nome;
+    /**
+     * A quantidade mínima de lixo gerada diariamente (em toneladas).
+     */
     private int lixoMin;
+    /**
+     * A quantidade máxima de lixo gerada diariamente (em toneladas).
+     */
     private int lixoMax;
+    /**
+     * A quantidade atual de lixo acumulado na zona (em toneladas).
+     */
     private int lixoAcomulado;
 
     /**
@@ -21,6 +33,7 @@ public class Zonas {
      * @param nome    Nome da zona (ex: "Sul", "Norte", "Centro").
      * @param lixoMin Valor mínimo de geração de lixo por dia para esta zona (em toneladas).
      * @param lixoMax Valor máximo de geração de lixo por dia para esta zona (em toneladas).
+     * @throws IllegalArgumentException se o nome for nulo/vazio ou os limites de lixo forem inválidos.
      */
     public Zonas(String nome, int lixoMin, int lixoMax) {
         if (nome == null || nome.trim().isEmpty()) {
@@ -113,6 +126,11 @@ public class Zonas {
         return nome;
     }
 
+    /**
+     * Retorna o limite máximo de geração de lixo diário para esta zona.
+     *
+     * @return O valor máximo de lixo em toneladas.
+     */
     public int getLixoMax() {
         return lixoMax;
     }

@@ -23,7 +23,9 @@ public class CaminhaoGrande {
      */
     private static int contadorIds = 1;
 
-
+    /**
+     * A capacidade máxima de carga que o caminhão pode transportar.
+     */
     private final int capacidadeMaxima = CAPACIDADE_CAMINHAO_GRANDE;
 
     /**
@@ -67,39 +69,29 @@ public class CaminhaoGrande {
      * @param quantidade Quantidade de lixo a ser adicionada (em toneladas).
      */
     public void adicionarCarga(int quantidade) {
-        // Garante que a carga não exceda a capacidade máxima
         this.cargaAtual = Math.min(this.cargaAtual + quantidade, capacidadeMaxima);
     }
 
     /**
      * Simula o descarregamento completo do caminhão no aterro sanitário.
      * Após o descarregamento, a carga é zerada e o estado {@code estaCarregado} é definido como {@code false}.
-     * Também imprime uma mensagem indicando a quantidade transportada.
      */
     public void descarregar() {
         System.out.println("Caminhão grande " + id + " partiu para o aterro com " + cargaAtual + "t.");
         cargaAtual = 0;
-        estaCarregado = false; // Após descarregar, não está mais "carregado" com lixo
-
-        // Lógica adicional pode ser implementada aqui futuramente, como:
-        // - Cálculo do tempo de viagem ao aterro e retorno.
-        // - Agendamento de um evento de retorno à estação.
+        estaCarregado = false;
     }
 
     /**
-     * Simula o comportamento de espera do caminhão na estação de transferência,
-     * aguardando ser carregado.
-     *
-     * @return Sempre retorna {@code true} no momento, pode ser adaptado para refletir o estado real de espera.
+     * Simula o comportamento de espera do caminhão na estação de transferência.
+     * @return Sempre retorna {@code true}.
      */
     public boolean aguardandoCarregamento() {
-        // Implementação futura pode adicionar lógica de tempo de espera, status, etc.
         return true;
     }
 
     /**
      * Retorna o identificador único do caminhão.
-     *
      * @return O ID do caminhão.
      */
     public int getId() {
@@ -108,7 +100,6 @@ public class CaminhaoGrande {
 
     /**
      * Retorna a capacidade máxima de carga do caminhão.
-     *
      * @return A capacidade máxima em toneladas.
      */
     public int getCapacidadeMaxima() {
@@ -117,7 +108,6 @@ public class CaminhaoGrande {
 
     /**
      * Retorna a carga atual presente no caminhão.
-     *
      * @return A carga atual em toneladas.
      */
     public int getCargaAtual() {
@@ -126,8 +116,6 @@ public class CaminhaoGrande {
 
     /**
      * Verifica se o caminhão está atualmente carregado com lixo.
-     * Note: "carregado" aqui significa que possui lixo, não que está apto a carregar mais.
-     *
      * @return {@code true} se está carregado com lixo, {@code false} se está vazio.
      */
     public boolean getEstaCarregado() {
@@ -136,15 +124,16 @@ public class CaminhaoGrande {
 
     /**
      * Retorna o número total de caminhões grandes instanciados.
-     *
      * @return O valor do contador de IDs.
      */
     public static int getContadorTotal() {
-        // O contador é incrementado a cada nova instância, então o valor (contadorIds - 1)
-        // representa o total de caminhões criados.
         return contadorIds - 1;
     }
 
+    /**
+     * Reseta o contador de IDs dos caminhões grandes para 1.
+     * Útil para reiniciar o estado entre simulações.
+     */
     public static void resetContador() {
         contadorIds = 1;
     }

@@ -9,19 +9,27 @@ import zonas.Zonas;
 /**
  * Classe responsável por distribuir as rotas entre os caminhões,
  * agora configurada para aceitar uma frota mista de caminhões.
+ * Esta é uma classe utilitária com métodos estáticos.
  */
 public class DistribuirRota {
 
+    /**
+     * Construtor privado para impedir a instanciação da classe,
+     * já que todos os seus métodos são estáticos.
+     */
     private DistribuirRota() {
         // Previne instanciação
     }
 
     /**
      * Distribui zonas para os caminhões com base nos parâmetros da simulação.
+     * Cria instâncias de caminhões de diferentes capacidades e os atribui a zonas
+     * iniciais, agendando o primeiro evento de coleta para cada um.
      *
      * @param zonas  Uma {@link Lista} de {@link Zonas} da cidade.
-     * @param params Objeto com os parâmetros de configuração da UI.
-     * @return Uma {@link Lista} de {@link CaminhaoPequeno} configurados.
+     * @param params Objeto com os parâmetros de configuração da UI, definindo a frota de caminhões.
+     * @return Uma {@link Lista} de {@link CaminhaoPequeno} configurados e prontos para a simulação.
+     * @throws IllegalArgumentException se a lista de zonas for nula ou vazia.
      */
     public static Lista<CaminhaoPequeno> distribuir(Lista<Zonas> zonas, ParametrosSimulacao params) {
         if (zonas == null || zonas.estaVazia()) {
@@ -63,7 +71,15 @@ public class DistribuirRota {
     }
 
     /**
-     * Método auxiliar para criar, configurar e agendar o primeiro evento de um caminhão.
+     * Método auxiliar para criar um caminhão, configurá-lo e agendar seu primeiro evento de coleta.
+     * Atribui uma zona inicial de forma balanceada (round-robin).
+     *
+     * @param caminhoes     A lista de caminhões da simulação para adicionar o novo caminhão.
+     * @param zonas         A lista de zonas disponíveis para atribuição.
+     * @param caminhaoIndex O índice do caminhão atual, usado para a distribuição round-robin.
+     * @param id            O identificador único para o novo caminhão.
+     * @param capacidade    A capacidade de carga do novo caminhão.
+     * @param viagens       O número de viagens que o novo caminhão pode realizar.
      */
     private static void criarEAgendarCaminhao(Lista<CaminhaoPequeno> caminhoes, Lista<Zonas> zonas, int caminhaoIndex,
                                               String id, int capacidade, int viagens) {

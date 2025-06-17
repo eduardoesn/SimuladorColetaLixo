@@ -11,11 +11,17 @@ import java.util.Comparator;
  * @param <T> O tipo de elemento armazenado na lista.
  */
 public class Lista<T> {
-    // Nó inicial da lista (primeiro nó).
+    /**
+     * Nó inicial da lista (cabeça).
+     */
     private NoLista<T> head;
-    // Nó final da lista (último nó).
+    /**
+     * Nó final da lista (cauda).
+     */
     private NoLista<T> tail;
-    // Tamanho atual da lista (número de elementos).
+    /**
+     * Tamanho atual da lista (número de elementos).
+     */
     private int tamanho;
 
     /**
@@ -69,6 +75,7 @@ public class Lista<T> {
 
     /**
      * Insere um elemento na posição correta de acordo com a ordem definida por um comparador.
+     * A lista é percorrida para encontrar a posição de inserção que mantém a ordenação.
      *
      * @param elemento    O elemento a ser inserido.
      * @param comparador  Um comparador que define a ordem dos elementos na lista.
@@ -157,7 +164,7 @@ public class Lista<T> {
     }
 
     /**
-     * Remove o nó que contém o elemento especificado.
+     * Remove o nó que contém o elemento especificado, procurando-o na lista.
      *
      * @param elemento O elemento a ser removido.
      * @return {@code true} se o elemento foi encontrado e removido; {@code false} caso contrário.
@@ -194,7 +201,8 @@ public class Lista<T> {
 
     /**
      * Retorna o nó correspondente à posição especificada.
-     * Este método otimiza a busca percorrendo do início ou do final, dependendo da proximidade da posição.
+     * Este método privado otimiza a busca percorrendo do início (head) ou do final (tail),
+     * dependendo de qual extremidade está mais próxima da posição desejada.
      *
      * @param pos A posição do nó na lista (0-indexado).
      * @return O nó na posição ou {@code null} se a posição for inválida.
@@ -220,7 +228,7 @@ public class Lista<T> {
     }
 
     /**
-     * Retorna a referência para o nó inicial da lista (head), sem removê-lo.
+     * Retorna a referência para o nó inicial da lista (head), sem removê-lo (operação "peek").
      *
      * @return O primeiro nó da lista ou {@code null} se a lista estiver vazia.
      */
@@ -247,7 +255,7 @@ public class Lista<T> {
     }
 
     /**
-     * Imprime os elementos da lista na ordem direta.
+     * Imprime os elementos da lista na ordem direta (do head para o tail).
      */
     public void imprimir() {
         if (estaVazia()) {
@@ -263,7 +271,7 @@ public class Lista<T> {
     }
 
     /**
-     * Imprime os elementos da lista na ordem inversa.
+     * Imprime os elementos da lista na ordem inversa (do tail para o head).
      */
     public void imprimirReverso() {
         if (estaVazia()) {

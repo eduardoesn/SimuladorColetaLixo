@@ -11,9 +11,18 @@ package tads;
  * @param <T> O tipo de elemento armazenado na fila.
  */
 public class Fila<T> {
-    private NoFila<T> head; // Referência para o início da fila.
-    private NoFila<T> tail; // Referência para o final da fila.
-    private int tamanho;    // Número de elementos atualmente na fila.
+    /**
+     * Referência para o início da fila (primeiro elemento a ser removido).
+     */
+    private NoFila<T> head;
+    /**
+     * Referência para o final da fila (último elemento inserido).
+     */
+    private NoFila<T> tail;
+    /**
+     * Número de elementos atualmente na fila.
+     */
+    private int tamanho;
 
     /**
      * Construtor da fila.
@@ -26,7 +35,7 @@ public class Fila<T> {
     }
 
     /**
-     * Adiciona um novo elemento ao final da fila (FIFO).
+     * Adiciona um novo elemento ao final da fila (operação de enfileirar).
      *
      * @param valor O valor a ser inserido na fila.
      */
@@ -43,7 +52,7 @@ public class Fila<T> {
     }
 
     /**
-     * Remove e retorna o primeiro elemento da fila seguindo o modelo FIFO.
+     * Remove e retorna o primeiro elemento da fila (operação de desenfileirar), seguindo o modelo FIFO.
      *
      * @return O valor do elemento removido ou {@code null} se a fila estiver vazia.
      */
@@ -63,7 +72,7 @@ public class Fila<T> {
     }
 
     /**
-     * Retorna o primeiro elemento da fila sem removê-lo.
+     * Retorna o primeiro elemento da fila sem removê-lo (operação "espiar").
      *
      * @return O valor do primeiro elemento da fila ou {@code null} se a fila estiver vazia.
      */

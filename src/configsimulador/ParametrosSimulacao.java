@@ -30,6 +30,7 @@ public class ParametrosSimulacao {
      * @param viagensCaminhoes8t  Número de viagens para os caminhões de 8t.
      * @param numCaminhoes10t     Número de caminhões de 10 toneladas.
      * @param viagensCaminhoes10t Número de viagens para os caminhões de 10t.
+     * @param horasASimular       O número de horas que a simulação deve ser executada.
      */
     public ParametrosSimulacao(int numCaminhoes2t, int viagensCaminhoes2t, int numCaminhoes4t, int viagensCaminhoes4t, int numCaminhoes8t, int viagensCaminhoes8t, int numCaminhoes10t, int viagensCaminhoes10t, int horasASimular) {
         this.numCaminhoes2t = numCaminhoes2t;
@@ -44,14 +45,49 @@ public class ParametrosSimulacao {
     }
 
     // Getters
+
+    /**
+     * @return O número de caminhões de 2 toneladas.
+     */
     public int getNumCaminhoes2t() { return numCaminhoes2t; }
+
+    /**
+     * @return O número de viagens para os caminhões de 2 toneladas.
+     */
     public int getViagensCaminhoes2t() { return viagensCaminhoes2t; }
+
+    /**
+     * @return O número de caminhões de 4 toneladas.
+     */
     public int getNumCaminhoes4t() { return numCaminhoes4t; }
+
+    /**
+     * @return O número de viagens para os caminhões de 4 toneladas.
+     */
     public int getViagensCaminhoes4t() { return viagensCaminhoes4t; }
+
+    /**
+     * @return O número de caminhões de 8 toneladas.
+     */
     public int getNumCaminhoes8t() { return numCaminhoes8t; }
+
+    /**
+     * @return O número de viagens para os caminhões de 8 toneladas.
+     */
     public int getViagensCaminhoes8t() { return viagensCaminhoes8t; }
+
+    /**
+     * @return O número de caminhões de 10 toneladas.
+     */
     public int getNumCaminhoes10t() { return numCaminhoes10t; }
+
+    /**
+     * @return O número de viagens para os caminhões de 10 toneladas.
+     */
     public int getViagensCaminhoes10t() { return viagensCaminhoes10t; }
 
+    /**
+     * @return O número de horas a simular.
+     */
     public int getHorasASimular() { return horasASimular; }
 }

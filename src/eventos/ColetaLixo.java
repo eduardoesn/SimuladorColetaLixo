@@ -66,17 +66,23 @@ public class ColetaLixo extends Evento {
                 Timer.formatarHorarioSimulado(getTempo()));
     }
 
-    // ===================================================================
-    // MÉTODO ADICIONADO PARA CORRIGIR O ERRO
-    // ===================================================================
-    public caminhoes.CaminhaoPequeno getCaminhao() {
+    /**
+     * Retorna o caminhão associado a este evento de coleta.
+     *
+     * @return O objeto {@link CaminhaoPequeno} que está realizando a coleta.
+     */
+    public CaminhaoPequeno getCaminhao() {
         return this.caminhao;
     }
 
+    /**
+     * Retorna a zona associada a este evento de coleta.
+     *
+     * @return O objeto {@link Zonas} onde a coleta está ocorrendo.
+     */
     public Zonas getZona() {
         return zonaAtual;
     }
-    // ===================================================================
 
 
     /**

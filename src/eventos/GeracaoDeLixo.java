@@ -58,6 +58,11 @@ public class GeracaoDeLixo extends Evento {
         System.out.println(); // Linha em branco para melhor legibilidade
     }
 
+    /**
+     * Retorna a zona associada a este evento de geração de lixo.
+     *
+     * @return A instância de {@link Zonas} onde o lixo é gerado.
+     */
     public Zonas getZona() {
         return zona;
     }

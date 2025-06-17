@@ -13,6 +13,12 @@ import zonas.DistanciaZonas;
 import zonas.Zonas;
 import zonas.ZonasParametradas;
 
+/**
+ * Classe principal que orquestra a simulação de coleta de lixo.
+ * É responsável por inicializar todos os componentes do sistema,
+ * como zonas, caminhões e estações, e por controlar o fluxo geral da simulação,
+ * incluindo a geração de relatórios e estatísticas.
+ */
 public class Simulador {
 
     // As listas agora são variáveis de instância para serem acessadas pelo supervisor
@@ -23,6 +29,13 @@ public class Simulador {
     private static int totalCaminhoesNaFila = 0;
     private static int contadorCaminhoesExtra = 0;
 
+    /**
+     * Inicializa o estado da simulação com base nos parâmetros fornecidos.
+     * Configura as zonas, estações de transferência, caminhões e agenda os eventos iniciais.
+     *
+     * @param params Os parâmetros de simulação, geralmente fornecidos pela interface do usuário.
+     * @return A lista de zonas inicializadas para que a GUI possa observá-las.
+     */
     public Lista<Zonas> inicializar(ParametrosSimulacao params) {
         System.out.println("=================== S I M U L A D O R ==================");
         System.out.println("Inicializando estado da simulação com parâmetros da UI.");
@@ -96,6 +109,11 @@ public class Simulador {
         return zonaMaisSucia;
     }
 
+    /**
+     * Exibe um relatório final no console com as estatísticas da simulação.
+     * Inclui o tempo total, lixo restante por zona e métricas de desempenho.
+     * @param zonas A lista de zonas para exibir o lixo restante.
+     */
     public void exibirRelatorioFinal(Lista<Zonas> zonas) {
         int tempoFinal = GerenciadorAgenda.getTempoUltimoEvento();
         System.out.println("\n[PROCESSAMENTO DE EVENTOS CONCLUÍDO]");
@@ -121,6 +139,10 @@ public class Simulador {
         System.out.println("Último evento processado: " + GerenciadorAgenda.getUltimoEvento());
     }
 
+    /**
+     * Cria e retorna a lista de zonas da cidade com suas configurações padrão.
+     * @return Uma {@link Lista} de objetos {@link Zonas}.
+     */
     public Lista<Zonas> inicializarZonas() {
         Lista<Zonas> zonas = new Lista<>();
         zonas.adicionar(0, ZonasParametradas.zonaSul());
@@ -131,6 +153,11 @@ public class Simulador {
         return zonas;
     }
 
+    /**
+     * Registra o tempo de espera de um caminhão na fila de uma estação
+     * para cálculo de estatísticas.
+     * @param tempoEspera O tempo (em minutos) que o caminhão esperou.
+     */
     public static void registrarTempoEspera(int tempoEspera) {
         if (tempoEspera > 0) {
             tempoTotalEspera += tempoEspera;
@@ -138,6 +165,9 @@ public class Simulador {
         }
     }
 
+    /**
+     * Reseta todas as variáveis estáticas de estatísticas para o início de uma nova simulação.
+     */
     public static void resetEstatisticas() {
         tempoTotalEspera = 0;
         totalCaminhoesNaFila = 0;
